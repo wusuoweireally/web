@@ -2,7 +2,7 @@ import axios, { type AxiosResponse, type AxiosError } from "axios";
 
 // 创建 axios 实例
 const api = axios.create({
-	baseURL: "localhost:3000/api", // 替换为你的 API 基础 URL
+	baseURL: import.meta.env.VITE_API_BASE_URL || "https://api.wallpaper.com",
 	timeout: 10000,
 	headers: {
 		"Content-Type": "application/json",
