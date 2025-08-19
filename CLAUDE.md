@@ -1,0 +1,2 @@
+- 这个项目的css使用tailwindcss 组件用tailwindcss的daisyui
+- 我配置了一个统一的后端接口工具它会直接放回response里面的data你不要在resopone.data去取

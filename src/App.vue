@@ -1,8 +1,9 @@
 <script setup lang="ts"></script>
 
 <template>
-	<!-- <router-view /> -->
-	<RouterView />
+	<Suspense>
+		<RouterView />
+	</Suspense>
 </template>
 
 <style scoped></style>
