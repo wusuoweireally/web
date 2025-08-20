@@ -53,7 +53,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: "login",
         name: "Login",
-        component: () => import("../views/user/Login.vue"),
+        component: () => import("../views/user/Auth.vue"),
         meta: {
           title: "用户登录",
           requiresAuth: false,
@@ -63,7 +63,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: "register",
         name: "Register",
-        component: () => import("../views/user/Register.vue"),
+        component: () => import("../views/user/Auth.vue"),
         meta: {
           title: "用户注册",
           requiresAuth: false,
@@ -157,9 +157,9 @@ router.beforeEach((to, _from, next) => {
     document.title = to.meta.title as string;
   }
 
-  // 检查登录状态
-  const token = localStorage.getItem("token");
-  const isLoggedIn = !!token;
+  // 检查登录状态 - 由于使用HttpOnly cookie，我们无法直接读取token
+  // 这里使用Pinia store中的用户状态来判断登录状态
+  const isLoggedIn = localStorage.getItem("currentUser") !== null;
 
   // 需要登录的路由
   if (to.meta.requiresAuth && !isLoggedIn) {

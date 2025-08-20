@@ -28,6 +28,7 @@ export interface RegisterDto {
   username: string;
   email: string;
   password: string;
+  avatarFile?: File | null;
 }
 
 export const useUserStore = defineStore("user", () => {
@@ -39,7 +40,7 @@ export const useUserStore = defineStore("user", () => {
   // 计算属性
   const isLoggedIn = computed(() => !!user.value);
   const userAvatar = computed(() => {
-    if (!user.value?.avatarUrl) return "/images/avatars/default-avatar.jpg";
+    if (!user.value?.avatarUrl) return "/images/avatars/default-avatar.svg";
     // 如果是相对路径，添加基础路径
     return user.value.avatarUrl.startsWith("http")
       ? user.value.avatarUrl
@@ -108,15 +109,40 @@ export const useUserStore = defineStore("user", () => {
       loading.value = true;
       clearError();
 
-      const response = (await api.post(
-        "/users/register",
-        payload,
-      )) as ApiResponse<User>;
+      // 处理文件上传
+      if (payload.avatarFile) {
+        const formData = new FormData();
+        formData.append("id", payload.id);
+        formData.append("username", payload.username);
+        formData.append("email", payload.email);
+        formData.append("password", payload.password);
+        formData.append("avatar", payload.avatarFile);
 
-      if (response.data) {
-        return response;
+        const response = (await api.post("/users/register", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })) as ApiResponse<User>;
+
+        if (response.data) {
+          return response;
+        } else {
+          throw new Error(response.message || "注册失败");
+        }
       } else {
-        throw new Error(response.message || "注册失败");
+        // 没有头像文件，使用原来的JSON方式
+        const response = (await api.post("/users/register", {
+          id: payload.id,
+          username: payload.username,
+          email: payload.email,
+          password: payload.password,
+        })) as ApiResponse<User>;
+
+        if (response.data) {
+          return response;
+        } else {
+          throw new Error(response.message || "注册失败");
+        }
       }
     } catch (err: any) {
       const errorMessage =
@@ -149,16 +175,18 @@ export const useUserStore = defineStore("user", () => {
 
       const response = await api.get("/users/profile");
 
-      if (response.data.success && response.data) {
-        setUser(response.data);
-        return response.data;
+      if (response.data.success && response.data.data) {
+        setUser(response.data.data);
+        return response.data.data;
       } else {
-        clearUser();
+        // 服务器返回成功但没有数据，不清除用户信息（可能是token过期）
+        console.warn("服务器返回成功但没有用户数据");
         return null;
       }
     } catch (err: any) {
-      clearUser();
+      // 只在非401错误时清除用户信息，401错误表示token过期但仍保留用户信息显示
       if (err.response?.status !== 401) {
+        clearUser();
         const errorMessage =
           err.response?.data?.message || err.message || "获取用户信息失败";
         setError(errorMessage);
@@ -199,19 +227,45 @@ export const useUserStore = defineStore("user", () => {
 
   // 初始化用户状态（应用启动时调用）
   const initializeAuth = async () => {
+    console.log("🔐 开始初始化用户认证状态...");
+    
     // 先尝试从 localStorage 恢复用户信息
     try {
       const savedUser = localStorage.getItem("currentUser");
       if (savedUser) {
         const userData = JSON.parse(savedUser) as User;
         user.value = userData;
+        console.log("✅ 从localStorage恢复用户信息:", userData.username);
+      } else {
+        console.log("ℹ️  localStorage中没有保存的用户信息");
       }
     } catch (e) {
       console.warn("恢复用户信息失败:", e);
     }
 
     // 然后验证用户状态是否仍然有效
-    await fetchCurrentUser();
+    // 如果认证失败（401），保持显示用户信息但提示需要重新登录
+    try {
+      console.log("🔄 验证用户认证状态...");
+      const result = await fetchCurrentUser();
+      if (result) {
+        console.log("✅ 用户认证状态有效");
+      } else {
+        console.log("⚠️  用户认证验证返回空结果");
+      }
+    } catch (error: any) {
+      // 401错误不处理，保持显示用户信息
+      if (error.response?.status === 401) {
+        console.log("⚠️  用户token已过期，需要重新登录");
+        console.log("ℹ️  保持显示用户信息，但功能受限");
+      } else {
+        console.warn("用户认证验证失败:", error);
+        // 其他错误时清除用户信息
+        clearUser();
+      }
+    }
+    
+    console.log("🔐 用户认证状态初始化完成");
   };
 
   // 从 localStorage 恢复用户信息（不验证服务器）

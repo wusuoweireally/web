@@ -11,10 +11,9 @@ const pinia = createPinia();
 // 先注册 Pinia
 app.use(pinia);
 
-app.use(router);
-router.afterEach((to) => {
-  document.title = to.meta && to.meta.title ? to.meta.title : "默认标题";
-});
-app.mount("#app");
+// 在挂载前初始化用户状态
 const userStore = useUserStore();
 userStore.initializeAuth();
+
+app.use(router);
+app.mount("#app");
