@@ -1,4 +1,5 @@
 import axios, { type AxiosResponse, type AxiosError } from "axios";
+import { useUserStore } from "@/stores/index";
 // 定义 API 返回的数据格式
 interface ApiResponse<T = any> {
   success: boolean;
@@ -70,9 +71,10 @@ api.interceptors.response.use(
           // 由于使用 HttpOnly cookie，清除操作由后端处理
           console.error("认证失败，请重新登录");
           // 可以触发全局登录状态更新
-          window.dispatchEvent(new CustomEvent("auth-error"));
+          const userStore = useUserStore();
+          userStore.clearUser();
           // 或者直接跳转登录页
-          // window.location.href = "/login";
+          window.location.href = "/login";
           break;
         case 403:
           console.error("权限不足");

@@ -40,11 +40,11 @@ export const useUserStore = defineStore("user", () => {
   // 计算属性
   const isLoggedIn = computed(() => !!user.value);
   const userAvatar = computed(() => {
+    // 如果没有头像，返回默认头像
     if (!user.value?.avatarUrl) return "/images/avatars/default-avatar.svg";
-    // 如果是相对路径，添加基础路径
-    return user.value.avatarUrl.startsWith("http")
-      ? user.value.avatarUrl
-      : `/images/avatars/${user.value.avatarUrl}`;
+    // 如果http开头网络头像，直接返回
+    if (user.value.avatarUrl.startsWith("http")) return user.value.avatarUrl;
+    return `/images/avatars/${user.value.avatarUrl}`;
   });
 
   // 操作方法
@@ -228,7 +228,7 @@ export const useUserStore = defineStore("user", () => {
   // 初始化用户状态（应用启动时调用）
   const initializeAuth = async () => {
     console.log("🔐 开始初始化用户认证状态...");
-    
+
     // 先尝试从 localStorage 恢复用户信息
     try {
       const savedUser = localStorage.getItem("currentUser");
@@ -264,7 +264,7 @@ export const useUserStore = defineStore("user", () => {
         clearUser();
       }
     }
-    
+
     console.log("🔐 用户认证状态初始化完成");
   };
 

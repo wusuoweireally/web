@@ -4,12 +4,12 @@
   >
     <!-- 头部导航栏 -->
     <nav
-      class="sticky top-0 z-50 border-b border-gray-200 bg-white/95 shadow-sm backdrop-blur-md"
+      class="sticky top-0 z-50 border-b border-gray-200 bg-white/95 shadow-md backdrop-blur-md"
     >
-      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div class="flex h-16 items-center justify-between">
+      <div class="max-w-8xl py-auto mx-auto">
+        <div class="flex h-16 justify-between">
           <!-- Logo 和品牌 -->
-          <div class="flex items-center">
+          <div class="ml-8 flex items-center">
             <div class="flex-shrink-0">
               <span
                 class="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-2xl font-bold text-transparent"
@@ -20,7 +20,7 @@
           </div>
 
           <!-- 导航菜单 -->
-          <div class="hidden items-center space-x-1 md:flex">
+          <div class="hidden items-center space-x-4 md:flex">
             <template v-for="item in navItems" :key="item.name">
               <router-link
                 :to="item.to"
@@ -33,7 +33,7 @@
           </div>
 
           <!-- 用户操作区域 -->
-          <div class="flex items-center space-x-3">
+          <div class="flex items-center" style="margin-right: 20px">
             <!-- 未登录状态 -->
             <template v-if="!isLoggedIn">
               <router-link
@@ -55,7 +55,7 @@
               <div class="group relative">
                 <!-- 用户头像按钮 -->
                 <button
-                  class="flex items-center space-x-2 rounded-full p-1 transition-colors hover:bg-gray-100"
+                  class="m-0 flex items-center space-x-2 rounded-full p-1 transition-colors hover:bg-gray-100 focus:ring-2 focus:ring-red-100 focus:outline-none"
                   @click="toggleDropdown"
                 >
                   <img
