@@ -163,6 +163,14 @@ export const useUserStore = defineStore("user", () => {
       console.warn("登出请求失败:", err);
     } finally {
       clearUser();
+      // 确保也清除可能存在的localStorage中的认证信息
+      try {
+        localStorage.removeItem("currentUser");
+        // 如果有其他认证相关的localStorage项也一并清除
+        // localStorage.removeItem("authToken"); // 如果有其他token存储
+      } catch (e) {
+        console.warn("清除localStorage失败:", e);
+      }
       loading.value = false;
     }
   };

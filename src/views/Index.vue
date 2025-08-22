@@ -91,7 +91,7 @@
                   role="menu"
                 >
                   <router-link
-                    to="/user/center"
+                    to="/user"
                     class="block px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-100"
                     role="menuitem"
                     @click="showDropdown = false"
@@ -201,7 +201,8 @@ const handleLogout = async () => {
   try {
     await userStore.logout();
     showDropdown.value = false;
-    // 可以添加退出成功后的跳转逻辑
+    // 退出登录后保持在当前页面，不需要重定向到登录页
+    // 如果当前页面需要登录，路由守卫会自动处理重定向
   } catch (error) {
     console.error("退出登录失败:", error);
   }

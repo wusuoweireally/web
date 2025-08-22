@@ -11,6 +11,10 @@ export default defineConfig({
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
+  build: {
+    outDir: "dist", // 构建输出目录
+    emptyOutDir: true, // 构建前清空输出目录
+  },
   server: {
     port: 1234,
     proxy: {

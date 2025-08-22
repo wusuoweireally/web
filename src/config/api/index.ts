@@ -70,11 +70,8 @@ api.interceptors.response.use(
           // 未授权，token 可能过期或无效
           // 由于使用 HttpOnly cookie，清除操作由后端处理
           console.error("认证失败，请重新登录");
-          // 可以触发全局登录状态更新
-          const userStore = useUserStore();
-          userStore.clearUser();
-          // 或者直接跳转登录页
-          window.location.href = "/login";
+          // 不再直接跳转，而是让路由守卫处理重定向
+          // 这样可以避免无限重定向循环
           break;
         case 403:
           console.error("权限不足");
