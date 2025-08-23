@@ -219,14 +219,20 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { wallpaperService } from '@/services/wallpaper'
+import { useUserStore } from '@/stores/index'
 
 const router = useRouter()
+const userStore = useUserStore()
 const fileInput = ref<HTMLInputElement | null>(null)
 const loading = ref(false)
 const isDragging = ref(false)
 const previewImage = ref<string>('')
+
+// 当前用户ID
+const currentUserId = computed(() => userStore.user?.id || 0)
 
 // 表单数据
 const formData = reactive({
@@ -415,30 +421,29 @@ const handleSubmit = async () => {
   loading.value = true
   
   try {
-    // 创建FormData对象
-    const formDataToSend = new FormData()
-    formDataToSend.append('image', formData.imageFile!)
-    formDataToSend.append('title', formData.title)
-    formDataToSend.append('description', formData.description)
-    formDataToSend.append('category', formData.category)
-    formDataToSend.append('visibility', formData.visibility)
-    formData.tags.forEach(tag => {
-      formDataToSend.append('tags[]', tag)
+    if (!formData.imageFile) {
+      throw new Error('请选择要上传的图片')
+    }
+    
+    if (!currentUserId.value) {
+      throw new Error('请先登录')
+    }
+
+    // 调用上传服务
+    const response = await wallpaperService.uploadWallpaper({
+      file: formData.imageFile,
+      title: formData.title,
+      description: formData.description,
+      uploaderId: currentUserId.value
     })
     
-    // 这里应该调用上传API
-    // const response = await api.post('/wallpapers/upload', formDataToSend, {
-    //   headers: {
-    //     'Content-Type': 'multipart/form-data'
-    //   }
-    // })
-    
-    // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    
-    // 上传成功，跳转到壁纸详情页或用户中心
-    alert('壁纸上传成功！')
-    router.push('/user')
+    if (response.success) {
+      // 上传成功，跳转到用户中心或壁纸详情页
+      alert('壁纸上传成功！')
+      router.push('/user/uploads')
+    } else {
+      throw new Error(response.message || '上传失败')
+    }
   } catch (error: any) {
     console.error('上传失败:', error)
     alert(error.message || '上传失败，请重试')

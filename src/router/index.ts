@@ -91,7 +91,7 @@ const routes: RouteRecordRaw[] = [
       },
     ],
   },
-  
+
   // 用户中心路由
   {
     path: "/user",
@@ -106,7 +106,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: "profile",
         name: "UserProfile",
-        component: () => import("@/views/user/UserProfile.vue"),
+        component: () => import("@/views/user/components/UserProfile.vue"),
         meta: {
           title: "个人资料",
           requiresAuth: true,
@@ -115,7 +115,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: "settings",
         name: "UserSettings",
-        component: () => import("@/views/user/UserSettings.vue"),
+        component: () => import("@/views/user/components/UserSettings.vue"),
         meta: {
           title: "账号设置",
           requiresAuth: true,
@@ -124,7 +124,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: "uploads",
         name: "UserUploads",
-        component: () => import("@/views/user/UserUploads.vue"),
+        component: () => import("@/views/user/components/UserUploads.vue"),
         meta: {
           title: "我的上传",
           requiresAuth: true,
@@ -133,7 +133,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: "favorites",
         name: "UserFavorites",
-        component: () => import("@/views/user/UserFavorites.vue"),
+        component: () => import("@/views/user/components/UserFavorites.vue"),
         meta: {
           title: "我的收藏",
           requiresAuth: true,
@@ -142,7 +142,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: "likes",
         name: "UserLikes",
-        component: () => import("@/views/user/UserLikes.vue"),
+        component: () => import("@/views/user/components/UserLikes.vue"),
         meta: {
           title: "我的点赞",
           requiresAuth: true,
@@ -189,6 +189,17 @@ const routes: RouteRecordRaw[] = [
     },
   },
 
+  // 测试上传页面
+  {
+    path: "/test-upload",
+    name: "TestUpload",
+    component: () => import("@/views/test-upload.vue"),
+    meta: {
+      title: "测试上传",
+      requiresAuth: false,
+    },
+  },
+
   // 404 页面
   {
     path: "/:pathMatch(.*)*",
@@ -231,7 +242,7 @@ router.beforeEach(async (to, _from, next) => {
       next();
       return;
     }
-    
+
     next({
       name: "Login",
       query: { redirect: to.fullPath }, // 保存重定向路径
@@ -246,7 +257,7 @@ router.beforeEach(async (to, _from, next) => {
       next();
       return;
     }
-    
+
     next({ name: "Home" });
     return;
   }

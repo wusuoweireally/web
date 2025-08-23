@@ -212,7 +212,7 @@ const fetchRandomPapers = async () => {
   try {
     for (let i = 0; i < 2; i++) {
       try {
-        const response: any = await api.get("/papers/random");
+        const response: any = await api.get("/wallpapers/random");
         if (response.code === 200) {
           papers.value.push(response.url);
         } else {

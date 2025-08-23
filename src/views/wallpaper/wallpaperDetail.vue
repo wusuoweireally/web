@@ -10,9 +10,6 @@
       </div>
       <div class="flex-none">
         <button class="btn btn-circle btn-ghost">
-          <i class="i-mdi-download text-lg"></i>
-        </button>
-        <button class="btn btn-circle btn-ghost">
           <i class="i-mdi-share-variant text-lg"></i>
         </button>
       </div>

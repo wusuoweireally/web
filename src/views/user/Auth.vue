@@ -3,13 +3,13 @@
     class="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 p-4"
   >
     <div
-      class="hover:shadow-3xl card w-full max-w-lg transform rounded-2xl border border-white/30 bg-white/95 shadow-2xl backdrop-blur-sm transition-all duration-500"
+      class="hover:shadow-3xl card flex h-150 w-220 transform flex-row justify-between rounded-2xl border border-white/30 bg-white/95 shadow-2xl backdrop-blur-sm transition-all duration-500"
     >
-      <div class="card-body p-8">
+      <div class="mx-auto my-1 w-1/2 border-r border-gray-400 bg-blue-100 p-8">
         <!-- 品牌标识 -->
         <div class="mb-8 text-center">
           <div
-            class="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-r from-blue-500 to-purple-600 shadow-lg"
+            class="mx-auto h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-r from-blue-500 to-purple-600 shadow-lg"
           >
             <span class="text-3xl font-bold text-white">🎨</span>
           </div>
@@ -22,7 +22,7 @@
         </div>
 
         <!-- 切换标签 -->
-        <div class="mb-8 rounded-2xl bg-base-200/30 p-1 backdrop-blur-sm">
+        <div class="mt-60 rounded-2xl bg-base-200/30 p-1 backdrop-blur-md">
           <div class="relative flex">
             <!-- 滑动指示器 -->
             <div
@@ -40,7 +40,7 @@
               ]"
               @click="isLogin = true"
             >
-              📱 登录
+              📱 去登录
             </button>
             <button
               :class="[
@@ -49,11 +49,12 @@
               ]"
               @click="isLogin = false"
             >
-              ✨ 注册
+              ✨ 去注册
             </button>
           </div>
         </div>
-
+      </div>
+      <div class="my-auto w-1/2 border-l border-white/30 p-8">
         <!-- 登录表单 -->
         <form
           v-if="isLogin"
@@ -72,7 +73,7 @@
               >
                 <span class="inline-flex items-center gap-2">
                   <span
-                    class="flex h-5 items-center justify-center rounded-full bg-blue-100 text-xs text-blue-600"
+                    class="flex h-5 w-5 items-center justify-center rounded-full bg-blue-100 text-xs text-blue-600"
                     >👤</span
                   >
                   账号
@@ -82,8 +83,9 @@
             <input
               type="text"
               v-model="loginForm.id"
-              placeholder="请输入账号"
+              placeholder="请输入数字账号"
               class="input-bordered input transition-all duration-300 input-primary hover:border-primary/50 focus:border-primary focus:ring-2 focus:ring-primary/50"
+              :class="{ 'input-error': loginError }"
               required
             />
           </div>
@@ -95,7 +97,7 @@
               >
                 <span class="inline-flex items-center gap-2">
                   <span
-                    class="flex h-5 items-center justify-center rounded-full bg-blue-100 text-xs text-blue-600"
+                    class="flex h-5 w-5 items-center justify-center rounded-full bg-red-100 text-xs text-red-600"
                     >🔒</span
                   >
                   密码
@@ -106,7 +108,8 @@
               type="password"
               v-model="loginForm.password"
               placeholder="请输入密码"
-              class="input input-primary"
+              class="input-bordered input transition-all duration-300 input-primary hover:border-primary/50 focus:border-primary focus:ring-2 focus:ring-primary/50"
+              :class="{ 'input-error': loginError }"
               required
             />
           </div>
@@ -142,7 +145,7 @@
 
           <div
             v-if="loginError"
-            class="mt-4 alert animate-bounce alert-error transition-opacity duration-300"
+            class="mt-4 alert alert-error transition-opacity duration-300"
           >
             <span>❌ {{ loginError }}</span>
           </div>
@@ -172,9 +175,7 @@
                   账号
                 </span>
               </span>
-              <span class="label-text-alt text-gray-400">
-                6位以上数字
-              </span>
+              <span class="label-text-alt text-gray-400"> 6位以上数字 </span>
             </label>
             <input
               type="text"
@@ -195,9 +196,7 @@
               </span>
             </label>
             <label class="label" v-if="!registerErrors.id && registerForm.id">
-              <span class="label-text-alt text-success">
-                ✅ 账号格式正确
-              </span>
+              <span class="label-text-alt text-success"> ✅ 账号格式正确 </span>
             </label>
           </div>
 
@@ -236,51 +235,12 @@
                 {{ registerErrors.username }}
               </span>
             </label>
-            <label class="label" v-if="!registerErrors.username && registerForm.username">
+            <label
+              class="label"
+              v-if="!registerErrors.username && registerForm.username"
+            >
               <span class="label-text-alt text-success">
                 ✅ 用户名格式正确
-              </span>
-            </label>
-          </div>
-
-          <div class="form-control">
-            <label class="label">
-              <span
-                class="label-text min-w-[80px] font-semibold whitespace-nowrap text-gray-700"
-              >
-                <span class="inline-flex items-center gap-2">
-                  <span
-                    class="flex h-5 w-5 items-center justify-center rounded-full bg-yellow-100 text-xs text-yellow-600"
-                    >📧</span
-                  >
-                  邮箱
-                </span>
-              </span>
-              <span class="label-text-alt text-gray-400">
-                请输入有效的邮箱地址
-              </span>
-            </label>
-            <input
-              type="email"
-              v-model="registerForm.email"
-              @input="registerErrors.email = ''"
-              placeholder="请输入邮箱"
-              class="input-bordered input transition-all duration-300 input-primary hover:border-primary/50 focus:border-primary focus:ring-2 focus:ring-primary/50"
-              :class="{ 'input-error': registerErrors.email }"
-              required
-            />
-            <label
-              class="label transition-opacity duration-300"
-              v-if="registerErrors.email"
-            >
-              <span class="label-text-alt flex items-center gap-1 text-error">
-                <span>⚠️</span>
-                {{ registerErrors.email }}
-              </span>
-            </label>
-            <label class="label" v-if="!registerErrors.email && registerForm.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(registerForm.email)">
-              <span class="label-text-alt text-success">
-                ✅ 邮箱格式正确
               </span>
             </label>
           </div>
@@ -320,10 +280,16 @@
                 {{ registerErrors.password }}
               </span>
             </label>
-            <label class="label" v-if="!registerErrors.password && registerForm.password && registerForm.password.length >= 8 && /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(registerForm.password)">
-              <span class="label-text-alt text-success">
-                ✅ 密码强度良好
-              </span>
+            <label
+              class="label"
+              v-if="
+                !registerErrors.password &&
+                registerForm.password &&
+                registerForm.password.length >= 8 &&
+                /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(registerForm.password)
+              "
+            >
+              <span class="label-text-alt text-success"> ✅ 密码强度良好 </span>
             </label>
           </div>
 
@@ -362,62 +328,15 @@
                 {{ registerErrors.confirmPassword }}
               </span>
             </label>
-            <label class="label" v-if="!registerErrors.confirmPassword && registerForm.confirmPassword && registerForm.password === registerForm.confirmPassword">
-              <span class="label-text-alt text-success">
-                ✅ 密码匹配成功
-              </span>
-            </label>
-          </div>
-
-          <!-- 头像上传 -->
-          <div class="form-control">
-            <label class="label">
-              <span
-                class="label-text min-w-[80px] font-semibold whitespace-nowrap text-gray-700"
-              >
-                <span class="inline-flex items-center gap-2">
-                  <span
-                    class="flex h-5 w-5 items-center justify-center rounded-full bg-purple-100 text-xs text-purple-600"
-                    >🖼️</span
-                  >
-                  头像
-                </span>
-              </span>
-              <span class="label-text-alt text-gray-400">
-                可选，支持 JPG/PNG/GIF/WebP，最大 5MB
-              </span>
-            </label>
-            <div class="flex items-center gap-4">
-              <label
-                class="btn border-primary/50 text-primary transition-all duration-300 btn-outline btn-sm hover:border-primary hover:bg-primary/10"
-              >
-                <input
-                  type="file"
-                  accept="image/*"
-                  @change="handleAvatarChange"
-                  class="hidden"
-                />
-                📸 选择头像
-              </label>
-              <div
-                v-if="avatarPreview"
-                class="avatar transition-opacity duration-300"
-              >
-                <div
-                  class="h-12 w-12 rounded-full ring-2 ring-primary/30 ring-offset-2 ring-offset-white transition-all duration-300 hover:ring-primary/50"
-                >
-                  <img
-                    :src="avatarPreview"
-                    alt="头像预览"
-                    class="object-cover"
-                  />
-                </div>
-              </div>
-            </div>
-            <label class="label" v-if="avatarPreview">
-              <span class="label-text-alt text-success">
-                ✅ 头像已选择
-              </span>
+            <label
+              class="label"
+              v-if="
+                !registerErrors.confirmPassword &&
+                registerForm.confirmPassword &&
+                registerForm.password === registerForm.confirmPassword
+              "
+            >
+              <span class="label-text-alt text-success"> ✅ 密码匹配成功 </span>
             </label>
           </div>
 
@@ -495,14 +414,12 @@ const loginError = ref("");
 const registerForm = reactive({
   id: "",
   username: "",
-  email: "",
   password: "",
   confirmPassword: "",
 });
 const registerErrors = reactive({
   id: "",
   username: "",
-  email: "",
   password: "",
   confirmPassword: "",
 });
@@ -518,23 +435,29 @@ const handleAvatarChange = (event: Event) => {
 
   if (file) {
     // 验证文件类型
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    const allowedTypes = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/gif",
+      "image/webp",
+    ];
     if (!allowedTypes.includes(file.type)) {
-      registerError.value = '请选择有效的图片文件 (JPEG, PNG, GIF, WebP)';
-      input.value = '';
+      registerError.value = "请选择有效的图片文件 (JPEG, PNG, GIF, WebP)";
+      input.value = "";
       return;
     }
 
     // 验证文件大小 (5MB)
     if (file.size > 5 * 1024 * 1024) {
-      registerError.value = '图片大小不能超过 5MB';
-      input.value = '';
+      registerError.value = "图片大小不能超过 5MB";
+      input.value = "";
       return;
     }
 
     avatarFile.value = file;
-    registerError.value = '';
-    
+    registerError.value = "";
+
     const reader = new FileReader();
     reader.onload = (e) => {
       avatarPreview.value = e.target?.result as string;
@@ -557,7 +480,7 @@ const handleLogin = async () => {
     router.push("/");
   } catch (error: any) {
     console.error("登录失败:", error);
-    loginError.value = error.response?.data?.message || "登录失败，请重试";
+    loginError.value = error.message || "登录失败，请重试";
   } finally {
     loginLoading.value = false;
   }
@@ -568,9 +491,10 @@ const validateRegister = (): boolean => {
   let isValid = true;
 
   // 重置错误信息
-  Object.keys(registerErrors).forEach((key) => {
-    registerErrors[key as keyof typeof registerErrors] = "";
-  });
+  registerErrors.id = "";
+  registerErrors.username = "";
+  registerErrors.password = "";
+  registerErrors.confirmPassword = "";
 
   // 账号验证
   if (!registerForm.id.trim()) {
@@ -594,21 +518,10 @@ const validateRegister = (): boolean => {
   } else if (registerForm.username.trim().length > 20) {
     registerErrors.username = "用户名不能超过20个字符";
     isValid = false;
-  } else if (!/^[\u4e00-\u9fa5a-zA-Z0-9_\-]+$/.test(registerForm.username.trim())) {
+  } else if (
+    !/^[\u4e00-\u9fa5a-zA-Z0-9_\-]+$/.test(registerForm.username.trim())
+  ) {
     registerErrors.username = "用户名只能包含中文、英文、数字、下划线和减号";
-    isValid = false;
-  }
-
-  // 邮箱验证
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!registerForm.email.trim()) {
-    registerErrors.email = "请输入邮箱";
-    isValid = false;
-  } else if (!emailRegex.test(registerForm.email)) {
-    registerErrors.email = "请输入有效的邮箱地址";
-    isValid = false;
-  } else if (registerForm.email.length > 50) {
-    registerErrors.email = "邮箱地址不能超过50个字符";
     isValid = false;
   }
 
@@ -616,14 +529,11 @@ const validateRegister = (): boolean => {
   if (!registerForm.password) {
     registerErrors.password = "请输入密码";
     isValid = false;
-  } else if (registerForm.password.length < 8) {
-    registerErrors.password = "密码至少8位";
+  } else if (registerForm.password.length < 6) {
+    registerErrors.password = "密码至少6位";
     isValid = false;
   } else if (registerForm.password.length > 20) {
     registerErrors.password = "密码不能超过20位";
-    isValid = false;
-  } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(registerForm.password)) {
-    registerErrors.password = "密码必须包含大小写字母和数字";
     isValid = false;
   }
 
@@ -650,9 +560,7 @@ const handleRegister = async () => {
     const registerData = {
       id: registerForm.id.trim(),
       username: registerForm.username.trim(),
-      email: registerForm.email.trim(),
       password: registerForm.password,
-      avatarFile: avatarFile.value,
     };
 
     const res = await userStore.register(registerData);
@@ -664,12 +572,9 @@ const handleRegister = async () => {
     Object.assign(registerForm, {
       id: "",
       username: "",
-      email: "",
       password: "",
       confirmPassword: "",
     });
-    avatarFile.value = null;
-    avatarPreview.value = null;
   } catch (error: any) {
     console.error("注册失败:", error);
     registerError.value = error.response?.data?.message || "注册失败，请重试";
