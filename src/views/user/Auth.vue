@@ -3,13 +3,13 @@
     class="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 p-4"
   >
     <div
-      class="hover:shadow-3xl card flex h-150 w-220 transform flex-row justify-between rounded-2xl border border-white/30 bg-white/95 shadow-2xl backdrop-blur-sm transition-all duration-500"
+      class="card flex h-auto w-full max-w-4xl transform flex-col md:flex-row justify-between rounded-2xl border border-white/30 bg-white/95 shadow-2xl backdrop-blur-sm transition-all duration-500 hover:shadow-3xl"
     >
-      <div class="mx-auto my-1 w-1/2 border-r border-gray-400 bg-blue-100 p-8">
+      <div class="mx-auto my-1 w-full md:w-1/2 border-r-0 md:border-r border-gray-400 bg-blue-100 p-8 rounded-l-2xl">
         <!-- 品牌标识 -->
         <div class="mb-8 text-center">
           <div
-            class="mx-auto h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-r from-blue-500 to-purple-600 shadow-lg"
+            class="mx-auto h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-r from-blue-500 to-purple-600 shadow-lg flex"
           >
             <span class="text-3xl font-bold text-white">🎨</span>
           </div>
@@ -22,7 +22,7 @@
         </div>
 
         <!-- 切换标签 -->
-        <div class="mt-60 rounded-2xl bg-base-200/30 p-1 backdrop-blur-md">
+        <div class="mt-10 md:mt-60 rounded-2xl bg-base-200/30 p-1 backdrop-blur-md">
           <div class="relative flex">
             <!-- 滑动指示器 -->
             <div
@@ -54,7 +54,7 @@
           </div>
         </div>
       </div>
-      <div class="my-auto w-1/2 border-l border-white/30 p-8">
+      <div class="my-auto w-full md:w-1/2 border-l-0 md:border-l border-white/30 p-8 rounded-r-2xl">
         <!-- 登录表单 -->
         <form
           v-if="isLogin"
@@ -117,7 +117,7 @@
           <button
             type="submit"
             :class="[
-              'btn w-full transition-all duration-300 btn-primary hover:scale-[1.02] hover:shadow-xl active:scale-95',
+              'btn w-full transition-all duration-300 btn-primary hover:btn-secondary',
               { 'btn-disabled loading': loginLoading },
             ]"
             :disabled="loginLoading"
@@ -132,20 +132,9 @@
             <span v-else>登录中...</span>
           </button>
 
-          <div class="mt-6 border-t border-gray-100 pt-4 text-center">
-            <span class="text-sm text-gray-500">还没有账号？</span>
-            <button
-              type="button"
-              class="btn text-primary btn-ghost transition-all duration-300 btn-sm hover:translate-x-1 hover:text-primary/80"
-              @click="isLogin = false"
-            >
-              立即注册 →
-            </button>
-          </div>
-
           <div
             v-if="loginError"
-            class="mt-4 alert alert-error transition-opacity duration-300"
+            class="mt-4 alert alert-error transition-opacity duration-300 shadow-lg"
           >
             <span>❌ {{ loginError }}</span>
           </div>
@@ -182,7 +171,7 @@
               v-model="registerForm.id"
               @input="registerErrors.id = ''"
               placeholder="请输入数字账号"
-              class="input-bordered input transition-all duration-300 input-primary hover:border-primary/50 focus:border-primary focus:ring-2 focus:ring-primary/50"
+              class="input-bordered input transition-all duration-300 input-primary hover:border-primary/50 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:input-primary"
               :class="{ 'input-error': registerErrors.id }"
               required
             />
@@ -222,7 +211,7 @@
               v-model="registerForm.username"
               @input="registerErrors.username = ''"
               placeholder="请输入用户名"
-              class="input-bordered input transition-all duration-300 input-primary hover:border-primary/50 focus:border-primary focus:ring-2 focus:ring-primary/50"
+              class="input-bordered input transition-all duration-300 input-primary hover:border-primary/50 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:input-primary"
               :class="{ 'input-error': registerErrors.username }"
               required
             />
@@ -267,7 +256,7 @@
               v-model="registerForm.password"
               @input="registerErrors.password = ''"
               placeholder="请输入密码"
-              class="input-bordered input transition-all duration-300 input-primary hover:border-primary/50 focus:border-primary focus:ring-2 focus:ring-primary/50"
+              class="input-bordered input transition-all duration-300 input-primary hover:border-primary/50 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:input-primary"
               :class="{ 'input-error': registerErrors.password }"
               required
             />
@@ -315,7 +304,7 @@
               v-model="registerForm.confirmPassword"
               @input="registerErrors.confirmPassword = ''"
               placeholder="请再次输入密码"
-              class="input-bordered input transition-all duration-300 input-primary hover:border-primary/50 focus:border-primary focus:ring-2 focus:ring-primary/50"
+              class="input-bordered input transition-all duration-300 input-primary hover:border-primary/50 focus:border-primary focus:ring-2 focus:ring-primary/50 focus:input-primary"
               :class="{ 'input-error': registerErrors.confirmPassword }"
               required
             />
@@ -343,7 +332,7 @@
           <button
             type="submit"
             :class="[
-              'btn w-full transition-all duration-300 btn-primary hover:scale-[1.02] hover:shadow-xl active:scale-95',
+              'btn w-full transition-all duration-300 btn-primary hover:btn-secondary',
               { 'btn-disabled loading': registerLoading },
             ]"
             :disabled="registerLoading"
@@ -358,20 +347,9 @@
             <span v-else>注册中...</span>
           </button>
 
-          <div class="mt-6 border-t border-gray-100 pt-4 text-center">
-            <span class="text-sm text-gray-500">已有账号？</span>
-            <button
-              type="button"
-              class="btn text-primary btn-ghost transition-all duration-300 btn-sm hover:translate-x-1 hover:text-primary/80"
-              @click="isLogin = true"
-            >
-              立即登录 →
-            </button>
-          </div>
-
           <div
             v-if="registerError"
-            class="mt-4 alert animate-bounce alert-error transition-opacity duration-300"
+            class="mt-4 alert animate-bounce alert-error transition-opacity duration-300 shadow-lg"
           >
             <span>❌ {{ registerError }}</span>
           </div>
@@ -384,7 +362,7 @@
 <script lang="ts" setup>
 import { ref, reactive } from "vue";
 import { useRouter } from "vue-router";
-import { useUserStore } from "@/stores";
+import { useUserStore, type RegisterDto } from "@/stores";
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -412,7 +390,7 @@ const loginError = ref("");
 
 // 注册表单
 const registerForm = reactive({
-  id: "",
+  id: undefined as number | undefined,
   username: "",
   password: "",
   confirmPassword: "",
@@ -425,46 +403,6 @@ const registerErrors = reactive({
 });
 const registerLoading = ref(false);
 const registerError = ref("");
-const avatarFile = ref<File | null>(null);
-const avatarPreview = ref<string | null>(null);
-
-// 头像选择处理
-const handleAvatarChange = (event: Event) => {
-  const input = event.target as HTMLInputElement;
-  const file = input.files?.[0];
-
-  if (file) {
-    // 验证文件类型
-    const allowedTypes = [
-      "image/jpeg",
-      "image/jpg",
-      "image/png",
-      "image/gif",
-      "image/webp",
-    ];
-    if (!allowedTypes.includes(file.type)) {
-      registerError.value = "请选择有效的图片文件 (JPEG, PNG, GIF, WebP)";
-      input.value = "";
-      return;
-    }
-
-    // 验证文件大小 (5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      registerError.value = "图片大小不能超过 5MB";
-      input.value = "";
-      return;
-    }
-
-    avatarFile.value = file;
-    registerError.value = "";
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      avatarPreview.value = e.target?.result as string;
-    };
-    reader.readAsDataURL(file);
-  }
-};
 
 // 登录处理
 const handleLogin = async () => {
@@ -497,13 +435,10 @@ const validateRegister = (): boolean => {
   registerErrors.confirmPassword = "";
 
   // 账号验证
-  if (!registerForm.id.trim()) {
+  if (!registerForm.id) {
     registerErrors.id = "请输入账号";
     isValid = false;
-  } else if (isNaN(Number(registerForm.id.trim()))) {
-    registerErrors.id = "账号必须是数字";
-    isValid = false;
-  } else if (registerForm.id.trim().length < 6) {
+  } else if (registerForm.id.toString().length < 6) {
     registerErrors.id = "账号长度至少6位";
     isValid = false;
   }
@@ -557,8 +492,8 @@ const handleRegister = async () => {
   registerLoading.value = true;
 
   try {
-    const registerData = {
-      id: registerForm.id.trim(),
+    const registerData: RegisterDto = {
+      id: Number(registerForm.id),
       username: registerForm.username.trim(),
       password: registerForm.password,
     };

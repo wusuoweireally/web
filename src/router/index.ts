@@ -96,31 +96,13 @@ const routes: RouteRecordRaw[] = [
   {
     path: "/user",
     name: "UserCenter",
-    redirect: "/user/profile",
+    redirect: "/user/favorites",
     component: () => import("@/views/user/userCenter.vue"),
     meta: {
       title: "个人中心",
       requiresAuth: true,
     },
     children: [
-      {
-        path: "profile",
-        name: "UserProfile",
-        component: () => import("@/views/user/components/UserProfile.vue"),
-        meta: {
-          title: "个人资料",
-          requiresAuth: true,
-        },
-      },
-      {
-        path: "settings",
-        name: "UserSettings",
-        component: () => import("@/views/user/components/UserSettings.vue"),
-        meta: {
-          title: "账号设置",
-          requiresAuth: true,
-        },
-      },
       {
         path: "uploads",
         name: "UserUploads",
@@ -148,9 +130,17 @@ const routes: RouteRecordRaw[] = [
           requiresAuth: true,
         },
       },
+      {
+        path: "settings",
+        name: "UserSettings",
+        component: () => import("@/views/user/components/UserSettings.vue"),
+        meta: {
+          title: "账号设置",
+          requiresAuth: true,
+        },
+      },
     ],
   },
-
   // 论坛相关路由
   {
     path: "/forums",

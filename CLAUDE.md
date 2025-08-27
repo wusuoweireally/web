@@ -37,3 +37,4 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - 用户状态存储在 Pinia store 中
 - 支持 localStorage 持久化
 - 包含登录、注册、登出等完整用户操作
+- 配置了响应请求拦截器,直接返回的数据是response.data因此调用接口时不需要通过response.data获取后端的返回的数据

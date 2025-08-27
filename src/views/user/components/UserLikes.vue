@@ -5,7 +5,7 @@
       <i class="i-mdi-heart-off text-6xl text-gray-300 mb-4"></i>
       <p class="text-gray-500 text-lg">暂无点赞的壁纸</p>
       <button 
-        class="btn btn-primary mt-4"
+        class="btn btn-primary mt-4 hover:btn-secondary transition-all duration-300"
         @click="$router.push('/wallpapers')"
       >
         去发现壁纸
@@ -15,7 +15,7 @@
       <div 
         v-for="like in likes" 
         :key="like.id"
-        class="card bg-base-100 shadow-xl cursor-pointer hover:shadow-2xl transition-shadow"
+        class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer"
         @click="$router.push(`/wallpaper/${like.id}`)"
       >
         <figure class="aspect-video">

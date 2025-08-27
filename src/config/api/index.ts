@@ -22,13 +22,13 @@ api.interceptors.request.use(
     // 由于使用 HttpOnly cookie，前端无法直接读取 token
     // 浏览器会自动在请求中包含 cookie，无需手动添加
 
-    // 添加请求时间戳（防止缓存）
-    if (config.method === "get") {
-      config.params = {
-        ...config.params,
-        _t: Date.now(),
-      };
-    }
+    // 移除时间戳参数，后端验证不通过
+    // if (config.method === "get") {
+    //   config.params = {
+    //     ...config.params,
+    //     _t: Date.now(),
+    //   };
+    // }
 
     console.log("🚀 Request:", config.method?.toUpperCase(), config.url);
     return config;

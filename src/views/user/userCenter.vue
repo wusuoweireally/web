@@ -11,7 +11,10 @@
           </button>
         </div>
 
-        <div class="flex items-center gap-6">
+        <!-- 响应式用户信息布局 -->
+        <div
+          class="flex flex-col items-center gap-6 md:flex-row md:items-start"
+        >
           <!-- 用户头像 -->
           <div class="avatar">
             <div
@@ -25,67 +28,77 @@
           </div>
 
           <!-- 用户信息 -->
-          <div class="flex-1">
+          <div class="w-full flex-1">
             <h1 class="text-3xl font-bold">{{ userStore.user?.username }}</h1>
             <p class="text-gray-500">{{ userStore.user?.email }}</p>
-            <div class="mt-2 flex gap-4">
-              <div class="stat">
-                <div class="stat-title">上传壁纸</div>
-                <div class="stat-value text-primary">
+
+            <!-- 响应式统计信息网格 -->
+            <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <div
+                class="stat place-items-center rounded-box bg-base-100 p-4 shadow-md"
+              >
+                <div class="stat-figure text-primary">
+                  <i class="i-mdi-image-multiple text-3xl"></i>
+                </div>
+                <div class="stat-title text-sm">上传壁纸</div>
+                <div class="stat-value text-2xl font-bold text-primary">
                   {{ userStats.uploads }}
                 </div>
               </div>
-              <div class="stat">
-                <div class="stat-title">获赞数</div>
-                <div class="stat-value text-secondary">
+              <div
+                class="stat place-items-center rounded-box bg-base-100 p-4 shadow-md"
+              >
+                <div class="stat-figure text-secondary">
+                  <i class="i-mdi-heart text-3xl"></i>
+                </div>
+                <div class="stat-title text-sm">获赞数</div>
+                <div class="stat-value text-2xl font-bold text-secondary">
                   {{ userStats.likesReceived }}
                 </div>
               </div>
-              <div class="stat">
-                <div class="stat-title">收藏数</div>
-                <div class="stat-value text-accent">
+              <div
+                class="stat place-items-center rounded-box bg-base-100 p-4 shadow-md"
+              >
+                <div class="stat-figure text-accent">
+                  <i class="i-mdi-star text-3xl"></i>
+                </div>
+                <div class="stat-title text-sm">收藏数</div>
+                <div class="stat-value text-2xl font-bold text-accent">
                   {{ userStats.favorites }}
                 </div>
               </div>
             </div>
           </div>
-
-          <!-- 编辑资料按钮 -->
-          <button
-            class="btn btn-outline btn-primary"
-            @click="$router.push('/user/profile')"
-          >
-            <i class="i-mdi-account-edit text-lg"></i>
-            编辑资料
-          </button>
         </div>
       </div>
     </div>
-
+    
     <!-- 导航菜单 -->
-    <div class="container mx-auto px-4 py-6">
-      <div class="tabs-boxed tabs">
-        <router-link to="/user/uploads" class="tab" active-class="tab-active">
-          <i class="i-mdi-image-multiple text-lg"></i>
-          我的上传
-        </router-link>
-        <router-link to="/user/favorites" class="tab" active-class="tab-active">
-          <i class="i-mdi-star text-lg"></i>
-          我的收藏
-        </router-link>
-        <router-link to="/user/likes" class="tab" active-class="tab-active">
-          <i class="i-mdi-heart text-lg"></i>
-          我的点赞
-        </router-link>
-        <router-link to="/user/settings" class="tab" active-class="tab-active">
-          <i class="i-mdi-cog text-lg"></i>
-          账号设置
-        </router-link>
+    <div class="bg-base-100 border-t border-base-200">
+      <div class="container mx-auto px-4">
+        <div class="tabs-boxed tabs">
+          <router-link to="/user/uploads" class="tab" active-class="tab-active">
+            <i class="i-mdi-image-multiple text-lg"></i>
+            我的上传
+          </router-link>
+          <router-link to="/user/favorites" class="tab" active-class="tab-active">
+            <i class="i-mdi-star text-lg"></i>
+            我的收藏
+          </router-link>
+          <router-link to="/user/likes" class="tab" active-class="tab-active">
+            <i class="i-mdi-heart text-lg"></i>
+            我的点赞
+          </router-link>
+          <router-link to="/user/settings" class="tab" active-class="tab-active">
+            <i class="i-mdi-cog text-lg"></i>
+            账号设置
+          </router-link>
+        </div>
       </div>
     </div>
-
+    
     <!-- 内容区域 -->
-    <div class="container mx-auto px-4 pb-8">
+    <div class="container mx-auto px-4 pb-8 pt-6">
       <!-- 使用子路由显示内容 -->
       <router-view></router-view>
     </div>
@@ -95,7 +108,6 @@
 <script lang="ts" setup>
 import { ref, onMounted } from "vue";
 import { useUserStore } from "@/stores";
-import api from "@/config/api";
 
 const userStore = useUserStore();
 
@@ -106,13 +118,9 @@ const userStats = ref({
   favorites: 89,
 });
 
-// 随机壁纸
-const randomPapers = ref<string[]>([]);
-
-// 页面加载时获取用户数据和随机壁纸
+// 页面加载时获取用户数据
 onMounted(() => {
   fetchUserData();
-  fetchRandomPapers();
 });
 
 // 获取用户数据
@@ -125,37 +133,6 @@ const fetchUserData = async () => {
     console.log("获取用户中心数据");
   } catch (error) {
     console.error("获取用户数据失败:", error);
-  }
-};
-
-// 获取随机壁纸
-const fetchRandomPapers = async () => {
-  try {
-    for (let i = 0; i < 8; i++) {
-      try {
-        const response: any = await api.get("/papers/random");
-        if (response.success && response.data) {
-          randomPapers.value.push(response.data);
-        } else {
-          console.warn(`请求 ${i + 1} 失败，状态码: ${response.code}`);
-          // 添加默认壁纸作为备用
-          randomPapers.value.push("/api/images/wallpapers/default.jpg");
-        }
-      } catch (error) {
-        console.warn(`请求 ${i + 1} 异常:`, error);
-        // 添加默认壁纸作为备用
-        randomPapers.value.push("/api/images/wallpapers/default.jpg");
-      }
-    }
-    console.log("获取随机壁纸成功，共获取:", randomPapers.value.length, "张");
-  } catch (error) {
-    console.error("获取随机壁纸失败:", error);
-    // 添加一些默认壁纸
-    for (let i = 0; i < 8; i++) {
-      randomPapers.value.push(
-        `/api/images/wallpapers/default${(i % 4) + 1}.jpg`,
-      );
-    }
   }
 };
 </script>
@@ -175,22 +152,34 @@ const fetchRandomPapers = async () => {
 }
 
 /* 响应式调整 */
-@media (max-width: 768px) {
-  .avatar {
-    width: 16px;
-    height: 16px;
+/* 更细致的响应式处理 */
+@media (max-width: 576px) {
+  .avatar .h-24 {
+    height: 6rem;
+    width: 6rem;
   }
 
   .stat {
-    padding: 0.5rem;
+    padding: 0.75rem;
   }
 
   .stat .stat-value {
-    font-size: 1.25rem;
+    font-size: 1.5rem;
   }
 
   .stat .stat-title {
-    font-size: 0.75rem;
+    font-size: 0.875rem;
   }
+}
+
+@media (min-width: 577px) and (max-width: 768px) {
+  .avatar .h-24 {
+    height: 8rem;
+    width: 8rem;
+  }
+}
+
+@media (min-width: 769px) {
+  /* 默认样式保持不变 */
 }
 </style>

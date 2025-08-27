@@ -26,12 +26,9 @@ export interface LoginDto {
 }
 
 export interface RegisterDto {
-  id: string;
+  id: number;
   username: string;
-  email: string;
   password: string;
-  bio?: string;
-  avatarFile?: File | null;
 }
 
 export const useUserStore = defineStore("user", () => {
@@ -44,11 +41,11 @@ export const useUserStore = defineStore("user", () => {
   const isLoggedIn = computed(() => !!user.value);
   const userAvatar = computed(() => {
     // 如果没有头像，返回默认头像
-    if (!user.value?.avatarUrl || user.value.avatarUrl === "defaultAvatar.webp") 
-      return "/api/images/avatars/defaultAvatar.png";
+    if (!user.value?.avatarUrl || user.value.avatarUrl === "defaultAvatar.webp")
+      return "/api/uploads/profile-pictures/defaultAvatar.png";
     // 如果http开头网络头像，直接返回
     if (user.value.avatarUrl.startsWith("http")) return user.value.avatarUrl;
-    return `/api/images/avatars/${user.value.avatarUrl}`;
+    return `/api/uploads/profile-pictures/${user.value.avatarUrl}`;
   });
 
   // 操作方法
@@ -86,10 +83,10 @@ export const useUserStore = defineStore("user", () => {
       loading.value = true;
       clearError();
 
-      const response = await api.post(
+      const response = (await api.post(
         "/users/login",
         loginData,
-      ) as ApiResponse<User>;
+      )) as ApiResponse<User>;
 
       if (response.success && response.data) {
         setUser(response.data);
@@ -113,42 +110,16 @@ export const useUserStore = defineStore("user", () => {
       loading.value = true;
       clearError();
 
-      // 处理文件上传
-      if (payload.avatarFile) {
-        const formData = new FormData();
-        formData.append("id", payload.id);
-        formData.append("username", payload.username);
-        formData.append("email", payload.email);
-        formData.append("password", payload.password);
-        if (payload.bio) formData.append("bio", payload.bio);
-        formData.append("avatar", payload.avatarFile);
+      const response = (await api.post("/users/register", {
+        id: payload.id,
+        username: payload.username,
+        password: payload.password,
+      })) as ApiResponse<User>;
 
-        const response = await api.post("/users/register", formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }) as ApiResponse<User>;
-
-        if (response.success && response.data) {
-          return response;
-        } else {
-          throw new Error(response.message || "注册失败");
-        }
+      if (response.success && response.data) {
+        return response;
       } else {
-        // 没有头像文件，使用原来的JSON方式
-        const response = await api.post("/users/register", {
-          id: payload.id,
-          username: payload.username,
-          email: payload.email,
-          password: payload.password,
-          bio: payload.bio,
-        }) as ApiResponse<User>;
-
-        if (response.success && response.data) {
-          return response;
-        } else {
-          throw new Error(response.message || "注册失败");
-        }
+        throw new Error(response.message || "注册失败");
       }
     } catch (err: any) {
       const errorMessage =
@@ -187,7 +158,7 @@ export const useUserStore = defineStore("user", () => {
       loading.value = true;
       clearError();
 
-      const response = await api.get("/users/profile") as ApiResponse<User>;
+      const response = (await api.get("/users/profile")) as ApiResponse<User>;
 
       if (response.success && response.data) {
         setUser(response.data);
@@ -216,7 +187,7 @@ export const useUserStore = defineStore("user", () => {
     username?: string;
     email?: string;
     bio?: string;
-    avatarFile?: File | null;
+    password?: string;
   }) => {
     try {
       loading.value = true;
@@ -227,36 +198,22 @@ export const useUserStore = defineStore("user", () => {
       if (!currentUser) {
         throw new Error("用户未登录");
       }
-      
-      // 处理文件上传 - 现在使用专门的头像上传接口
-      if (updateData.avatarFile) {
-        // 如果有头像文件，使用专门的头像上传接口
-        const avatarFormData = new FormData();
-        avatarFormData.append("avatar", updateData.avatarFile);
-        
-        const avatarResponse = await api.post(`/users/${currentUser.id}/avatar`, avatarFormData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }) as ApiResponse<User>;
 
-        if (avatarResponse.success && avatarResponse.data) {
-          setUser(avatarResponse.data);
-        } else {
-          throw new Error(avatarResponse.message || "头像上传失败");
-        }
-      }
-      
       // 处理其他字段的更新
       const otherUpdateData: any = {};
       if (updateData.username) otherUpdateData.username = updateData.username;
-      if (updateData.email !== undefined) otherUpdateData.email = updateData.email;
+      if (updateData.email !== undefined)
+        otherUpdateData.email = updateData.email;
       if (updateData.bio !== undefined) otherUpdateData.bio = updateData.bio;
-      
+      if (updateData.password) otherUpdateData.password = updateData.password;
+
       // 如果有其他字段需要更新
       if (Object.keys(otherUpdateData).length > 0) {
-        const response = await api.patch(`/users/${currentUser.id}`, otherUpdateData) as ApiResponse<User>;
-        
+        const response = (await api.patch(
+          `/users/${currentUser.id}`,
+          otherUpdateData,
+        )) as ApiResponse<User>;
+
         if (response.success && response.data) {
           setUser(response.data);
           return response;
@@ -264,7 +221,7 @@ export const useUserStore = defineStore("user", () => {
           throw new Error(response.message || "更新失败");
         }
       }
-      
+
       // 如果只有头像更新，返回头像更新的结果
       return { success: true, message: "更新成功" };
     } catch (err: any) {
