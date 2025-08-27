@@ -1,13 +1,6 @@
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
-import api from "@/config/api";
-
-// API响应格式
-interface ApiResponse<T = any> {
-  success: boolean;
-  message?: string;
-  data?: T;
-}
+import api, { type ApiResponse } from "@/config/api";
 
 export interface User {
   id: number;

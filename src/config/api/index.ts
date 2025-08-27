@@ -1,7 +1,7 @@
 import axios, { type AxiosResponse, type AxiosError } from "axios";
-import { useUserStore } from "@/stores/index";
+
 // 定义 API 返回的数据格式
-interface ApiResponse<T = any> {
+export interface ApiResponse<T = Record<string, any>> {
   success: boolean;
   message?: string;
   data?: T;
@@ -19,17 +19,6 @@ const api = axios.create({
 // 请求拦截器
 api.interceptors.request.use(
   (config) => {
-    // 由于使用 HttpOnly cookie，前端无法直接读取 token
-    // 浏览器会自动在请求中包含 cookie，无需手动添加
-
-    // 移除时间戳参数，后端验证不通过
-    // if (config.method === "get") {
-    //   config.params = {
-    //     ...config.params,
-    //     _t: Date.now(),
-    //   };
-    // }
-
     console.log("🚀 Request:", config.method?.toUpperCase(), config.url);
     return config;
   },
