@@ -1,24 +1,52 @@
-import axios, { type AxiosResponse, type AxiosError } from "axios";
+import axios, {
+  type AxiosResponse,
+  type CancelTokenSource,
+  type InternalAxiosRequestConfig,
+} from "axios";
 
-// 定义 API 返回的数据格式
+// 扩展Axios请求配置类型
+interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
+  requestId?: string;
+}
+
+// 定义 API 响应的数据格式
 export interface ApiResponse<T = Record<string, any>> {
   success: boolean;
   message?: string;
-  data?: T;
+  data?: T | null;
 }
+
 // 创建 axios 实例
 const api = axios.create({
-  baseURL: "/api", // 替换为你的 API 基础 URL
+  baseURL: "/api",
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
   },
-  withCredentials: true, // 关键：允许发送 cookies
+  withCredentials: true,
 });
 
-// 请求拦截器
+// 请求取消令牌管理
+const cancelTokenSources: Map<string, CancelTokenSource> = new Map();
+
+// 请求拦截器 - 添加请求取消功能
 api.interceptors.request.use(
-  (config) => {
+  (config: CustomAxiosRequestConfig) => {
+    // 为每个请求生成唯一标识
+    const requestId = config.url || `request_${Date.now()}`;
+
+    // 取消之前的相同请求（防止重复请求）
+    if (cancelTokenSources.has(requestId)) {
+      const source = cancelTokenSources.get(requestId);
+      source?.cancel(`取消重复请求: ${requestId}`);
+    }
+
+    // 创建新的取消令牌
+    const source = axios.CancelToken.source();
+    config.cancelToken = source.token;
+    cancelTokenSources.set(requestId, source);
+
+    config.requestId = requestId; // 保存requestId到config中
     console.log("🚀 Request:", config.method?.toUpperCase(), config.url);
     return config;
   },
@@ -28,16 +56,23 @@ api.interceptors.request.use(
   },
 );
 
-// 响应拦截器
+// 响应拦截器 - 清理已完成请求的取消令牌
 api.interceptors.response.use(
   (response: AxiosResponse) => {
-    console.log("✅ Response:", response, response.config.url);
+    // 请求成功完成，清理取消令牌
+    const config = response.config as CustomAxiosRequestConfig;
+    const requestId = config.requestId;
+    if (requestId && cancelTokenSources.has(requestId)) {
+      cancelTokenSources.delete(requestId);
+    }
+
+    console.log("✅ Response:", config.url, response.status);
 
     // 根据你的后端返回格式调整
     // 后端返回格式：{ success: boolean, message?: string, data?: any }
     if (response.data.success !== undefined) {
       if (response.data.success) {
-        return response.data as ApiResponse; // 返回完整响应，包含 success、message、data
+        return response.data as ApiResponse;
       } else {
         return Promise.reject(new Error(response.data.message || "请求失败"));
       }
@@ -45,7 +80,22 @@ api.interceptors.response.use(
 
     return response.data;
   },
-  (error: AxiosError) => {
+  (error: any) => {
+    // 清理取消令牌
+    if (error.config) {
+      const config = error.config as CustomAxiosRequestConfig;
+      const requestId = config.requestId;
+      if (requestId && cancelTokenSources.has(requestId)) {
+        cancelTokenSources.delete(requestId);
+      }
+    }
+
+    // 处理取消请求
+    if (axios.isCancel(error)) {
+      console.warn("请求已被取消:", error.message);
+      return Promise.reject(error);
+    }
+
     console.error(
       "❌ Response Error:",
       error.response?.status,
@@ -56,11 +106,7 @@ api.interceptors.response.use(
     if (error.response) {
       switch (error.response.status) {
         case 401:
-          // 未授权，token 可能过期或无效
-          // 由于使用 HttpOnly cookie，清除操作由后端处理
           console.error("认证失败，请重新登录");
-          // 不再直接跳转，而是让路由守卫处理重定向
-          // 这样可以避免无限重定向循环
           break;
         case 403:
           console.error("权限不足");
@@ -83,5 +129,16 @@ api.interceptors.response.use(
     return Promise.reject(error);
   },
 );
+
+// 手动取消请求的函数
+export const cancelRequest = (requestId: string): boolean => {
+  if (cancelTokenSources.has(requestId)) {
+    const source = cancelTokenSources.get(requestId);
+    source?.cancel(`手动取消请求: ${requestId}`);
+    cancelTokenSources.delete(requestId);
+    return true;
+  }
+  return false;
+};
 
 export default api;

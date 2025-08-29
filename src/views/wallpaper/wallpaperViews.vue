@@ -1,5 +1,8 @@
 <template>
   <div class="min-h-screen bg-base-200">
+    <!-- 顶部导航栏 -->
+    <NavBar />
+
     <!-- 筛选导航栏 -->
     <div class="bg-base-100 shadow-sm">
       <div class="container mx-auto px-4 py-4">
@@ -29,7 +32,11 @@
           <div class="dropdown-hover dropdown">
             <div tabindex="0" role="button" class="btn btn-outline btn-sm">
               <i class="i-mdi-tag text-lg"></i>
-              分类: {{ categories.find(c => c.value === currentCategory)?.label || "全部" }}
+              分类:
+              {{
+                categories.find((c) => c.value === currentCategory)?.label ||
+                "全部"
+              }}
             </div>
             <ul
               tabindex="0"
@@ -145,7 +152,7 @@
       <!-- 壁纸列表 -->
       <div
         v-else
-        class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
+        class="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
       >
         <div
           v-for="wallpaper in wallpapers"
@@ -160,50 +167,29 @@
               class="h-full w-full object-cover"
               @load="handleImageLoad"
             />
-            <div
-              v-if="!wallpaper.loaded"
-              class="absolute inset-0 flex items-center justify-center"
-            >
-              <span class="loading loading-sm loading-spinner"></span>
-            </div>
           </figure>
-          <div class="card-body p-4">
-            <h3 class="card-title text-sm font-semibold">
-              {{ (wallpaper as any).uploader?.username || '未知用户' }} 的壁纸
-            </h3>
+          <div class="card-body p-1">
             <div
               class="flex items-center justify-between text-xs text-gray-500"
             >
-              <span>{{ wallpaper.width }}×{{ wallpaper.height }}</span>
+              <span>分辨率 {{ wallpaper.width }}×{{ wallpaper.height }}</span>
               <div class="flex gap-2">
                 <span class="flex items-center gap-1">
-                  <i class="i-mdi-eye text-sm text-blue-500"></i>
-                  {{ (wallpaper as any).viewCount || 0 }}
+                  <i class="i-mdi-eye text-sm text-blue-500">
+                    {{ (wallpaper as any).viewCount || 0 }}
+                  </i>
                 </span>
                 <span class="flex items-center gap-1">
-                  <i class="i-mdi-heart text-sm text-red-500"></i>
-                  {{ (wallpaper as any).likeCount || 0 }}
+                  <i class="i-mdi-heart text-sm text-red-500">
+                    {{ (wallpaper as any).likeCount || 0 }}
+                  </i>
                 </span>
                 <span class="flex items-center gap-1">
-                  <i class="i-mdi-star text-sm text-yellow-500"></i>
-                  {{ (wallpaper as any).favoriteCount || 0 }}
+                  <i class="i-mdi-star text-sm text-yellow-500">
+                    {{ (wallpaper as any).favoriteCount || 0 }}
+                  </i>
                 </span>
               </div>
-            </div>
-            <div class="mt-2 flex flex-wrap gap-1">
-              <span
-                v-for="tag in wallpaper.tags.slice(0, 2)"
-                :key="tag"
-                class="badge badge-outline badge-xs"
-              >
-                {{ tag }}
-              </span>
-              <span
-                v-if="wallpaper.tags.length > 2"
-                class="badge badge-ghost badge-xs"
-              >
-                +{{ wallpaper.tags.length - 2 }}
-              </span>
             </div>
           </div>
         </div>
@@ -248,6 +234,7 @@
 import { ref, computed, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
 import { wallpaperService, type Wallpaper } from "@/services/wallpaper";
+import NavBar from "@/components/NavBar.vue";
 
 // API拦截器返回的格式
 interface ApiWallpaperResponse {
@@ -377,13 +364,28 @@ const fetchWallpapers = async () => {
           : sortBy.value === "popular"
             ? "likes"
             : "random",
-      sortOrder: sortBy.value === "latest" ? "DESC" : sortBy.value === "popular" ? "DESC" : "DESC",
+      sortOrder:
+        sortBy.value === "latest"
+          ? "DESC"
+          : sortBy.value === "popular"
+            ? "DESC"
+            : "DESC",
       category: currentCategory.value,
-      aspectRatio: currentRatio.value ? parseFloat(currentRatio.value) : undefined,
-      minWidth: currentResolution.value ? parseInt(currentResolution.value.split('x')[0]) : undefined,
-      maxWidth: currentResolution.value ? parseInt(currentResolution.value.split('x')[0]) : undefined,
-      minHeight: currentResolution.value ? parseInt(currentResolution.value.split('x')[1]) : undefined,
-      maxHeight: currentResolution.value ? parseInt(currentResolution.value.split('x')[1]) : undefined,
+      aspectRatio: currentRatio.value
+        ? parseFloat(currentRatio.value)
+        : undefined,
+      minWidth: currentResolution.value
+        ? parseInt(currentResolution.value.split("x")[0])
+        : undefined,
+      maxWidth: currentResolution.value
+        ? parseInt(currentResolution.value.split("x")[0])
+        : undefined,
+      minHeight: currentResolution.value
+        ? parseInt(currentResolution.value.split("x")[1])
+        : undefined,
+      maxHeight: currentResolution.value
+        ? parseInt(currentResolution.value.split("x")[1])
+        : undefined,
       tags: [],
     });
 
@@ -397,9 +399,12 @@ const fetchWallpapers = async () => {
         uploadDate: wallpaper.createdAt,
         resolution: `${wallpaper.width}x${wallpaper.height}`,
         // 添加一些模拟标签数据
-        tags: wallpaper.category === 'anime' ? ['动漫', '二次元', '高清'] : 
-              wallpaper.category === 'people' ? ['人物', '肖像', '艺术'] : 
-              ['风景', '自然', '4K']
+        tags:
+          wallpaper.category === "anime"
+            ? ["动漫", "二次元", "高清"]
+            : wallpaper.category === "people"
+              ? ["人物", "肖像", "艺术"]
+              : ["风景", "自然", "4K"],
       }));
       totalCount.value = apiResponse.pagination.total;
     }
@@ -412,7 +417,6 @@ const fetchWallpapers = async () => {
     loading.value = false;
   }
 };
-
 
 // 图片加载完成
 const handleImageLoad = (event: Event) => {

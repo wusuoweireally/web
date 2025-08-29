@@ -1,4 +1,5 @@
-import api from "@/config/api";
+import api, { cancelRequest } from "@/config/api";
+import type { AxiosProgressEvent } from "axios";
 
 /**
  * 壁纸查询参数接口
@@ -70,7 +71,10 @@ class WallpaperService {
   /**
    * 上传壁纸
    */
-  async uploadWallpaper(params: UploadWallpaperParams) {
+  async uploadWallpaper(
+    params: UploadWallpaperParams,
+    onUploadProgress?: (progressEvent: AxiosProgressEvent) => void,
+  ) {
     const formData = new FormData();
     formData.append("file", params.file);
 
@@ -84,14 +88,18 @@ class WallpaperService {
       });
     }
 
+    // 生成请求ID用于取消上传
+    const requestId = `upload_${Date.now()}`;
+
     try {
       const response = await api.post("/wallpapers/upload", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
+        onUploadProgress,
       });
 
-      return response;
+      return { response, requestId };
     } catch (error) {
       console.error("上传壁纸失败:", error);
       throw error;
@@ -252,6 +260,19 @@ class WallpaperService {
       return response;
     } catch (error) {
       console.error("获取上传者壁纸失败:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * 获取壁纸关联标签
+   */
+  async getWallpaperTags(id: number) {
+    try {
+      const response = await api.get(`/wallpapers/${id}/tags`);
+      return response;
+    } catch (error) {
+      console.error("获取壁纸标签失败:", error);
       throw error;
     }
   }
