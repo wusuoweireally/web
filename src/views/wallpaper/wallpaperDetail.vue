@@ -45,7 +45,7 @@
                     <span
                       v-for="tag in wallpaper.tags"
                       :key="tag"
-                      class="badge badge-outline badge-primary badge-xs"
+                      class="badge badge-outline badge-xs badge-primary"
                     >
                       {{ tag }}
                     </span>
@@ -56,7 +56,7 @@
                 <div>
                   <h3 class="mb-1 text-xs font-semibold text-gray-500">尺寸</h3>
                   <p class="text-sm">
-                    {{ wallpaper.width }} × {{ wallpaper.height }}
+                    {{ wallpaper.width }} × {{ wallpaper.height }} px
                   </p>
                   <p class="text-xs text-gray-500">{{ wallpaper.fileSize }}</p>
                 </div>
@@ -76,7 +76,9 @@
                       </div>
                     </div>
                     <div>
-                      <p class="text-sm font-medium">{{ wallpaper.uploader.name }}</p>
+                      <p class="text-sm font-medium">
+                        {{ wallpaper.uploader.name }}
+                      </p>
                       <p class="text-xs text-gray-500">
                         {{ wallpaper.uploadDate }}
                       </p>
@@ -88,16 +90,22 @@
                 <div class="grid grid-cols-2 gap-2">
                   <div class="text-center">
                     <div class="stat p-1">
-                      <div class="stat-title text-xs">点赞数</div>
-                      <div class="stat-value text-primary text-sm">
+                      <div class="flex items-center justify-center gap-1">
+                        <i class="i-mdi-thumb-up text-sm text-green-500"></i>
+                        <div class="stat-title text-xs">点赞</div>
+                      </div>
+                      <div class="stat-value text-sm text-primary">
                         {{ wallpaper.likes }}
                       </div>
                     </div>
                   </div>
                   <div class="text-center">
                     <div class="stat p-1">
-                      <div class="stat-title text-xs">收藏数</div>
-                      <div class="stat-value text-secondary text-sm">
+                      <div class="flex items-center justify-center gap-1">
+                        <i class="i-mdi-star text-sm text-yellow-500"></i>
+                        <div class="stat-title text-xs">收藏</div>
+                      </div>
+                      <div class="stat-value text-sm text-secondary">
                         {{ wallpaper.favorites }}
                       </div>
                     </div>
@@ -107,7 +115,7 @@
                 <!-- 操作按钮 -->
                 <div class="flex gap-1">
                   <button
-                    class="btn btn-primary btn-xs flex-1"
+                    class="btn flex-1 btn-xs btn-primary"
                     :class="{ 'btn-active': isLiked }"
                     @click="handleLike"
                   >
@@ -115,7 +123,7 @@
                     {{ isLiked ? "已点赞" : "点赞" }}
                   </button>
                   <button
-                    class="btn btn-secondary btn-xs flex-1"
+                    class="btn flex-1 btn-xs btn-secondary"
                     :class="{ 'btn-active': isFavorited }"
                     @click="handleFavorite"
                   >
@@ -130,11 +138,10 @@
 
         <!-- 右侧壁纸展示 -->
         <div class="lg:col-span-3">
-          <div class="card bg-base-100 shadow-xl h-full">
+          <div class="card h-full bg-base-100 shadow-xl">
             <figure class="aspect-video h-full">
               <img
                 :src="wallpaper.imageUrl"
-                :alt="wallpaper.title"
                 class="h-full w-full object-contain"
                 @load="imageLoaded = true"
               />
@@ -147,16 +154,16 @@
             </figure>
 
             <!-- 分辨率选择 -->
-              <div class="mt-4 flex flex-wrap gap-2">
-                <button
-                  v-for="resolution in wallpaper.resolutions"
-                  :key="resolution"
-                  class="btn btn-outline btn-sm"
-                  @click="selectResolution(resolution)"
-                >
-                  {{ resolution }}
-                </button>
-              </div>
+            <div class="mt-4 flex flex-wrap gap-2">
+              <button
+                v-for="resolution in wallpaper.resolutions"
+                :key="resolution"
+                class="btn btn-outline btn-sm"
+                @click="selectResolution(resolution)"
+              >
+                {{ resolution }}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -167,7 +174,8 @@
 <script lang="ts" setup>
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
-import { wallpaperService, type Wallpaper } from "@/services/wallpaper";
+import { wallpaperService } from "@/services/wallpaper";
+import { useUserStore } from "@/stores";
 
 // 壁纸详情接口
 interface WallpaperDetail {
@@ -190,6 +198,7 @@ interface WallpaperDetail {
 
 const route = useRoute();
 const wallpaperId = route.params.id;
+const userStore = useUserStore();
 const imageLoaded = ref(false);
 const isLiked = ref(false);
 const isFavorited = ref(false);
@@ -233,7 +242,7 @@ const fetchWallpaperDetail = async () => {
     // 同时获取壁纸详情和关联标签
     const [wallpaperResponse, tagsResponse] = await Promise.all([
       wallpaperService.getWallpaperDetail(id),
-      wallpaperService.getWallpaperTags(id)
+      wallpaperService.getWallpaperTags(id),
     ]);
 
     // 转换API数据格式以匹配组件接口
@@ -249,11 +258,19 @@ const fetchWallpaperDetail = async () => {
         name: wallpaperResponse.data.uploaderName || "未知用户",
         avatar: "", // API未提供头像URL，需要后端支持
       },
-      uploadDate: new Date(wallpaperResponse.data.createdAt).toLocaleDateString(),
+      uploadDate: new Date(
+        wallpaperResponse.data.createdAt,
+      ).toLocaleDateString(),
       likes: wallpaperResponse.data.likeCount,
       favorites: wallpaperResponse.data.favoriteCount,
-      resolutions: [`${wallpaperResponse.data.width}x${wallpaperResponse.data.height}`], // 简化处理
+      resolutions: [
+        `${wallpaperResponse.data.width}x${wallpaperResponse.data.height}`,
+      ], // 简化处理
     };
+
+    // 初始化点赞和收藏状态（如果API返回则使用，否则设为false）
+    isLiked.value = wallpaperResponse.data.isLiked || false;
+    isFavorited.value = wallpaperResponse.data.isFavorited || false;
   } catch (err) {
     console.error("获取壁纸详情失败:", err);
     error.value = err instanceof Error ? err.message : "获取壁纸详情失败";
@@ -263,27 +280,109 @@ const fetchWallpaperDetail = async () => {
 };
 
 // 处理点赞
-const handleLike = () => {
-  isLiked.value = !isLiked.value;
-  if (isLiked.value) {
+const handleLike = async () => {
+  // 检查登录状态
+  if (!userStore.isLoggedIn) {
+    alert("请先登录后再点赞");
+    return;
+  }
+
+  const id = Number(wallpaperId);
+  if (isNaN(id)) {
+    console.error("无效的壁纸ID");
+    return;
+  }
+
+  // 保存当前状态用于错误回滚
+  const previousLiked = isLiked.value;
+  const previousLikes = wallpaper.value.likes;
+
+  // 确定要执行的操作（根据当前状态）
+  const shouldLike = !previousLiked;
+
+  // 乐观更新UI
+  isLiked.value = shouldLike;
+  if (shouldLike) {
     wallpaper.value.likes++;
   } else {
     wallpaper.value.likes--;
   }
-  // 这里应该调用API更新点赞状态
-  console.log("点赞状态:", isLiked.value);
+
+  try {
+    // 调用API
+    if (shouldLike) {
+      await wallpaperService.likeWallpaper(id);
+    } else {
+      await wallpaperService.unlikeWallpaper(id);
+    }
+  } catch (err: any) {
+    // API调用失败，回滚状态
+    isLiked.value = previousLiked;
+    wallpaper.value.likes = previousLikes;
+
+    // 处理错误
+    if (err.response?.status === 401) {
+      alert("登录已过期，请重新登录");
+    } else {
+      const errorMessage =
+        err.response?.data?.message || err.message || "操作失败，请稍后重试";
+      console.error("点赞操作失败:", errorMessage);
+      alert(errorMessage);
+    }
+  }
 };
 
 // 处理收藏
-const handleFavorite = () => {
-  isFavorited.value = !isFavorited.value;
-  if (isFavorited.value) {
+const handleFavorite = async () => {
+  // 检查登录状态
+  if (!userStore.isLoggedIn) {
+    alert("请先登录后再收藏");
+    return;
+  }
+
+  const id = Number(wallpaperId);
+  if (isNaN(id)) {
+    console.error("无效的壁纸ID");
+    return;
+  }
+
+  // 保存当前状态用于错误回滚
+  const previousFavorited = isFavorited.value;
+  const previousFavorites = wallpaper.value.favorites;
+
+  // 确定要执行的操作（根据当前状态）
+  const shouldFavorite = !previousFavorited;
+
+  // 乐观更新UI
+  isFavorited.value = shouldFavorite;
+  if (shouldFavorite) {
     wallpaper.value.favorites++;
   } else {
     wallpaper.value.favorites--;
   }
-  // 这里应该调用API更新收藏状态
-  console.log("收藏状态:", isFavorited.value);
+
+  try {
+    // 调用API
+    if (shouldFavorite) {
+      await wallpaperService.favoriteWallpaper(id);
+    } else {
+      await wallpaperService.unfavoriteWallpaper(id);
+    }
+  } catch (err: any) {
+    // API调用失败，回滚状态
+    isFavorited.value = previousFavorited;
+    wallpaper.value.favorites = previousFavorites;
+
+    // 处理错误
+    if (err.response?.status === 401) {
+      alert("登录已过期，请重新登录");
+    } else {
+      const errorMessage =
+        err.response?.data?.message || err.message || "操作失败，请稍后重试";
+      console.error("收藏操作失败:", errorMessage);
+      alert(errorMessage);
+    }
+  }
 };
 
 // 选择分辨率
@@ -308,8 +407,9 @@ img {
   .grid {
     grid-template-columns: 1fr;
   }
-  
-  .lg\:col-span-1, .lg\:col-span-3 {
+
+  .lg\:col-span-1,
+  .lg\:col-span-3 {
     grid-column: span 1 / span 1;
   }
 }

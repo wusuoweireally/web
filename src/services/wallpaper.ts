@@ -1,4 +1,4 @@
-import api, { cancelRequest } from "@/config/api";
+import api from "@/config/api";
 import type { AxiosProgressEvent } from "axios";
 
 /**
@@ -33,8 +33,7 @@ export interface UploadWallpaperParams {
  */
 export interface Wallpaper {
   id: number;
-  title: string;
-  description?: string;
+  title?: string;
   fileUrl: string;
   thumbnailUrl?: string;
   width: number;
@@ -42,13 +41,20 @@ export interface Wallpaper {
   aspectRatio: string;
   category: string;
   tags: string[];
-  likes: number;
-  favorites: number;
-  views: number;
+  likeCount: number;
+  favoriteCount: number;
+  viewCount: number;
   uploaderId: number;
-  uploaderName?: string;
+  uploader?: {
+    id: string;
+    username: string;
+    email: string;
+    avatarUrl?: string;
+  };
   createdAt: string;
   updatedAt: string;
+  isLiked?: boolean;
+  isFavorited?: boolean;
 }
 
 /**

@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-base-200">
     <!-- 导航栏 -->
-    <nav class="navbar bg-base-100 shadow-sm px-4">
+    <nav class="navbar bg-base-100 px-4 shadow-sm">
       <div class="flex items-center">
         <button class="btn btn-ghost btn-sm" @click="$router.back()">
           <i class="i-mdi-arrow-left text-lg"></i>
@@ -26,8 +26,14 @@
               }"
             >
               <div>
-                <i class="i-mdi-check-circle" v-if="uploadStatus.type === 'success'"></i>
-                <i class="i-mdi-alert-circle" v-else-if="uploadStatus.type === 'error'"></i>
+                <i
+                  class="i-mdi-check-circle"
+                  v-if="uploadStatus.type === 'success'"
+                ></i>
+                <i
+                  class="i-mdi-alert-circle"
+                  v-else-if="uploadStatus.type === 'error'"
+                ></i>
                 <i class="i-mdi-information" v-else></i>
                 <span>{{ uploadStatus.message }}</span>
               </div>
@@ -42,7 +48,10 @@
                 </label>
                 <div
                   class="cursor-pointer rounded-lg border-2 border-dashed border-gray-300 p-8 text-center transition-colors hover:border-primary hover:bg-base-200/50"
-                  :class="{ 'border-primary': isDragging, 'border-error': errors.image }"
+                  :class="{
+                    'border-primary': isDragging,
+                    'border-error': errors.image,
+                  }"
                   @click="fileInput?.click()"
                   @dragover.prevent="isDragging = true"
                   @dragleave="isDragging = false"
@@ -57,9 +66,13 @@
                   />
 
                   <div v-if="!previewImage">
-                    <i class="i-mdi-cloud-upload mb-4 text-4xl text-gray-400"></i>
+                    <i
+                      class="i-mdi-cloud-upload mb-4 text-4xl text-gray-400"
+                    ></i>
                     <p class="mb-2 text-gray-600">点击选择图片或拖拽到此处</p>
-                    <p class="text-sm text-gray-500">支持 JPG, PNG, WEBP 格式，最大 10MB</p>
+                    <p class="text-sm text-gray-500">
+                      支持 JPG, PNG, WEBP 格式，最大 10MB
+                    </p>
                   </div>
 
                   <div v-else class="relative">
@@ -69,7 +82,7 @@
                       class="mx-auto max-h-64 rounded-lg object-contain"
                     />
                     <button
-                      class="btn btn-circle btn-sm btn-error absolute -right-2 -top-2"
+                      class="btn absolute -top-2 -right-2 btn-circle btn-sm btn-error"
                       @click.stop="removeImage"
                     >
                       <i class="i-mdi-close"></i>
@@ -77,17 +90,33 @@
                   </div>
                 </div>
                 <label class="label" v-if="errors.image">
-                  <span class="label-text-alt text-error">{{ errors.image }}</span>
+                  <span class="label-text-alt text-error">{{
+                    errors.image
+                  }}</span>
                 </label>
               </div>
 
               <!-- 图片信息显示 -->
               <div v-if="imageInfo" class="rounded-lg bg-base-200 p-4">
                 <div class="grid grid-cols-2 gap-4 text-sm">
-                  <div><span class="text-gray-600">文件名:</span> <span class="font-medium">{{ imageInfo.name }}</span></div>
-                  <div><span class="text-gray-600">文件大小:</span> <span class="font-medium">{{ imageInfo.size }}</span></div>
-                  <div><span class="text-gray-600">尺寸:</span> <span class="font-medium">{{ imageInfo.width }} × {{ imageInfo.height }}</span></div>
-                  <div><span class="text-gray-600">格式:</span> <span class="font-medium">{{ imageInfo.type }}</span></div>
+                  <div>
+                    <span class="text-gray-600">文件名:</span>
+                    <span class="font-medium">{{ imageInfo.name }}</span>
+                  </div>
+                  <div>
+                    <span class="text-gray-600">文件大小:</span>
+                    <span class="font-medium">{{ imageInfo.size }}</span>
+                  </div>
+                  <div>
+                    <span class="text-gray-600">尺寸:</span>
+                    <span class="font-medium"
+                      >{{ imageInfo.width }} × {{ imageInfo.height }}</span
+                    >
+                  </div>
+                  <div>
+                    <span class="text-gray-600">格式:</span>
+                    <span class="font-medium">{{ imageInfo.type }}</span>
+                  </div>
                 </div>
               </div>
 
@@ -102,14 +131,19 @@
                     v-for="tag in availableTags"
                     :key="tag"
                     class="badge cursor-pointer"
-                    :class="{ 'badge-primary': selectedTags.includes(tag), 'badge-outline': !selectedTags.includes(tag) }"
+                    :class="{
+                      'badge-primary': selectedTags.includes(tag),
+                      'badge-outline': !selectedTags.includes(tag),
+                    }"
                     @click="toggleTag(tag)"
                   >
                     {{ tag }}
                   </span>
                 </div>
                 <label class="label" v-if="errors.tags">
-                  <span class="label-text-alt text-error">{{ errors.tags }}</span>
+                  <span class="label-text-alt text-error">{{
+                    errors.tags
+                  }}</span>
                 </label>
               </div>
 
@@ -120,15 +154,21 @@
                 </label>
                 <select
                   v-model="formData.category"
-                  class="select select-bordered"
+                  class="select-bordered select"
                   :class="{ 'select-error': errors.category }"
                 >
-                  <option v-for="category in categories" :key="category.value" :value="category.value">
+                  <option
+                    v-for="category in categories"
+                    :key="category.value"
+                    :value="category.value"
+                  >
                     {{ category.label }}
                   </option>
                 </select>
                 <label class="label" v-if="errors.category">
-                  <span class="label-text-alt text-error">{{ errors.category }}</span>
+                  <span class="label-text-alt text-error">{{
+                    errors.category
+                  }}</span>
                 </label>
               </div>
 
@@ -145,7 +185,7 @@
                   ></div>
                 </div>
                 <button
-                  class="btn btn-sm btn-error mt-2"
+                  class="btn mt-2 btn-sm btn-error"
                   @click="cancelUpload"
                   :disabled="!currentRequestId"
                 >
@@ -165,7 +205,7 @@
                   <i class="i-mdi-upload text-lg"></i>
                   上传壁纸
                 </button>
-                <button class="btn btn-ghost mt-2" @click="$router.back()">
+                <button class="btn mt-2 btn-ghost" @click="$router.back()">
                   返回
                 </button>
               </div>
@@ -176,10 +216,24 @@
               <div class="rounded-lg bg-base-200 p-4">
                 <h3 class="mb-3 text-lg font-bold">上传成功</h3>
                 <div v-if="imageInfo" class="grid grid-cols-2 gap-4 text-sm">
-                  <div><span class="text-gray-600">文件名:</span> <span class="font-medium">{{ imageInfo.name }}</span></div>
-                  <div><span class="text-gray-600">文件大小:</span> <span class="font-medium">{{ imageInfo.size }}</span></div>
-                  <div><span class="text-gray-600">尺寸:</span> <span class="font-medium">{{ imageInfo.width }} × {{ imageInfo.height }}</span></div>
-                  <div><span class="text-gray-600">格式:</span> <span class="font-medium">{{ imageInfo.type }}</span></div>
+                  <div>
+                    <span class="text-gray-600">文件名:</span>
+                    <span class="font-medium">{{ imageInfo.name }}</span>
+                  </div>
+                  <div>
+                    <span class="text-gray-600">文件大小:</span>
+                    <span class="font-medium">{{ imageInfo.size }}</span>
+                  </div>
+                  <div>
+                    <span class="text-gray-600">尺寸:</span>
+                    <span class="font-medium"
+                      >{{ imageInfo.width }} × {{ imageInfo.height }}</span
+                    >
+                  </div>
+                  <div>
+                    <span class="text-gray-600">格式:</span>
+                    <span class="font-medium">{{ imageInfo.type }}</span>
+                  </div>
                 </div>
                 <div v-if="previewImage" class="mt-3">
                   <img
@@ -202,13 +256,13 @@
     </div>
 
     <!-- 固定在右下角的我的上传按钮 -->
-    <div class="fixed bottom-6 right-6">
+    <div class="fixed right-6 bottom-6">
       <button
-        class="btn btn-circle btn-lg btn-primary shadow-lg"
+        class="btn btn-circle shadow-lg btn-lg btn-primary"
         @click="$router.push('/user/uploads')"
         title="我的上传"
       >
-        <i class="i-mdi-image-multiple"></i>
+        <i class="i-mdi-image-multiple">我的上传</i>
       </button>
     </div>
   </div>
@@ -259,9 +313,27 @@ const errors = reactive({
 
 // 可用标签
 const availableTags = [
-  "4K", "8K", "高清", "超清", "风景", "星空", "海洋", "森林", "城市", 
-  "动漫", "游戏", "电影", "艺术", "暗色", "亮色", "渐变", "抽象", 
-  "自然", "动物", "植物", "建筑"
+  "4K",
+  "8K",
+  "高清",
+  "超清",
+  "风景",
+  "星空",
+  "海洋",
+  "森林",
+  "城市",
+  "动漫",
+  "游戏",
+  "电影",
+  "艺术",
+  "暗色",
+  "亮色",
+  "渐变",
+  "抽象",
+  "自然",
+  "动物",
+  "植物",
+  "建筑",
 ];
 
 // 可用分类
@@ -312,8 +384,8 @@ const processImageFile = (file: File) => {
     return;
   }
 
-  if (file.size > 10 * 1024 * 1024) {
-    errors.image = "图片大小不能超过 10MB";
+  if (file.size > 50 * 1024 * 1024) {
+    errors.image = "图片大小不能超过 50MB";
     return;
   }
 
@@ -406,11 +478,11 @@ const handleSubmit = async () => {
       (progressEvent) => {
         if (progressEvent.total) {
           const progress = Math.round(
-            (progressEvent.loaded * 100) / progressEvent.total
+            (progressEvent.loaded * 100) / progressEvent.total,
           );
           uploadProgress.value = progress;
         }
-      }
+      },
     );
 
     currentRequestId.value = requestId;
@@ -427,7 +499,10 @@ const handleSubmit = async () => {
       uploadStatus.value = { type: "info", message: "上传已取消" };
     } else {
       console.error("上传失败:", error);
-      uploadStatus.value = { type: "error", message: error.message || "上传失败，请重试" };
+      uploadStatus.value = {
+        type: "error",
+        message: error.message || "上传失败，请重试",
+      };
     }
   } finally {
     loading.value = false;

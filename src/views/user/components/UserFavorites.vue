@@ -1,61 +1,72 @@
 <template>
-  <div class="p-6">
-    <h2 class="text-2xl font-bold mb-6">我的收藏</h2>
-    <div v-if="favorites.length === 0" class="text-center py-12">
-      <i class="i-mdi-star-off text-6xl text-gray-300 mb-4"></i>
-      <p class="text-gray-500 text-lg">暂无收藏的壁纸</p>
-      <button 
-        class="btn btn-primary mt-4 hover:btn-secondary transition-all duration-300"
-        @click="$router.push('/wallpapers')"
-      >
-        去发现壁纸
-      </button>
-    </div>
-    <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div 
-        v-for="favorite in favorites" 
-        :key="favorite.id"
-        class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer"
-        @click="$router.push(`/wallpaper/${favorite.id}`)"
-      >
-        <figure class="aspect-video">
-          <img :src="favorite.imageUrl" :alt="favorite.title" class="w-full h-full object-cover" />
-        </figure>
-        <div class="card-body p-4">
-          <h3 class="card-title text-sm">{{ favorite.title }}</h3>
-          <div class="flex justify-between items-center text-sm text-gray-500">
-            <span>by {{ favorite.uploader }}</span>
-            <div class="flex gap-2">
-              <span class="flex items-center gap-1">
-                <i class="i-mdi-heart text-red-500"></i>
-                {{ favorite.likes }}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <UserWallpaperList
+    title="我的收藏"
+    :empty-title="'暂无收藏的壁纸'"
+    :empty-description="'收藏你喜欢的壁纸，方便随时查看'"
+    :empty-action="{
+      text: '去发现壁纸',
+      handler: () => $router.push('/latest'),
+    }"
+    :show-uploader="true"
+    :show-actions="true"
+    :fetch-function="fetchUserFavorites"
+  />
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
+import UserWallpaperList from "./UserWallpaperList.vue";
+import { useUserStore } from "@/stores";
 
-// 模拟收藏数据
-const favorites = ref([
-  {
-    id: 4,
-    title: '城市夜景',
-    imageUrl: 'https://picsum.photos/400/300?random=4',
-    uploader: '夜景摄影师',
-    likes: 78
-  },
-  {
-    id: 5,
-    title: '雪山之巅',
-    imageUrl: 'https://picsum.photos/400/300?random=5',
-    uploader: '登山爱好者',
-    likes: 92
+const userStore = useUserStore();
+
+// 获取用户收藏壁纸的API
+const fetchUserFavorites = async (
+  page: number = 1,
+  limit: number = 20,
+  search: string = "",
+) => {
+  try {
+    const response = await userStore.fetchUserWallpapers(
+      "favorites",
+      page,
+      limit,
+      search,
+    );
+    console.log("response", response);
+    if (response && response.data) {
+      return {
+        data: response.data || [],
+        pagination: response.pagination || {
+          page,
+          limit,
+          total: 0,
+          pages: 0,
+        },
+      };
+    }
+
+    // 如果API返回失败，返回空数据
+    return {
+      data: [],
+      pagination: {
+        page,
+        limit,
+        total: 0,
+        pages: 0,
+      },
+    };
+  } catch (error) {
+    console.error("获取用户收藏壁纸失败:", error);
+    // 返回空数据
+    return {
+      data: [],
+      pagination: {
+        page,
+        limit,
+        total: 0,
+        pages: 0,
+      },
+    };
   }
-])
+};
 </script>

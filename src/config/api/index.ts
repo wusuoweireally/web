@@ -142,3 +142,27 @@ export const cancelRequest = (requestId: string): boolean => {
 };
 
 export default api;
+// 在 src/config/api/index.ts 文件末尾添加
+
+// 扩展 axios 类型定义，让所有请求自动返回 ApiResponse 格式
+declare module "axios" {
+  export interface AxiosInstance {
+    get<T = any>(url: string, config?: any): Promise<ApiResponse<T>>;
+    post<T = any>(
+      url: string,
+      data?: any,
+      config?: any,
+    ): Promise<ApiResponse<T>>;
+    put<T = any>(
+      url: string,
+      data?: any,
+      config?: any,
+    ): Promise<ApiResponse<T>>;
+    patch<T = any>(
+      url: string,
+      data?: any,
+      config?: any,
+    ): Promise<ApiResponse<T>>;
+    delete<T = any>(url: string, config?: any): Promise<ApiResponse<T>>;
+  }
+}

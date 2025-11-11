@@ -25,7 +25,6 @@
         <figure class="aspect-video">
           <img
             :src="wallpaper.thumbnailUrl || wallpaper.fileUrl"
-            :alt="wallpaper.title"
             class="h-full w-full object-cover"
             @load="handleImageLoad(wallpaper)"
           />
@@ -42,15 +41,24 @@
           </h3>
           <div class="flex items-center justify-between text-xs text-gray-500">
             <span>{{ wallpaper.width }}×{{ wallpaper.height }}</span>
-            <div class="flex gap-2">
-              <span class="flex items-center gap-1">
-                <i class="i-mdi-eye text-sm text-blue-500"></i>
-                {{ wallpaper.viewCount || 0 }}
-              </span>
-              <span class="flex items-center gap-1">
-                <i class="i-mdi-heart text-sm text-red-500"></i>
-                {{ wallpaper.likeCount || 0 }}
-              </span>
+            <div class="flex gap-3">
+              <!-- 查看数 -->
+              <div class="flex items-center gap-1 text-sm">
+                <span class="text-blue-500">👁</span>
+                <span>{{ wallpaper.viewCount || 0 }}</span>
+              </div>
+
+              <!-- 点赞数 -->
+              <div class="flex items-center gap-1 text-sm">
+                <span class="text-green-500">👍</span>
+                <span>{{ wallpaper.likeCount || 0 }}</span>
+              </div>
+
+              <!-- 收藏数 -->
+              <div class="flex items-center gap-1 text-sm">
+                <span class="text-yellow-500">⭐</span>
+                <span>{{ wallpaper.favoriteCount || 0 }}</span>
+              </div>
             </div>
           </div>
           <div class="mt-2 flex flex-wrap gap-1">
@@ -94,6 +102,7 @@ interface ExtendedWallpaper extends Wallpaper {
   };
   viewCount?: number;
   likeCount?: number;
+  favoriteCount?: number;
   tags: string[];
 }
 
@@ -112,7 +121,7 @@ const fetchShowcaseWallpapers = async () => {
       sortOrder: "DESC",
     });
 
-    if (response.success && response.data) {
+    if (response.data) {
       showcaseWallpapers.value = response.data.map((wallpaper: any) => ({
         ...wallpaper,
         loaded: false,

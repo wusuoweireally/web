@@ -163,7 +163,6 @@
           <figure class="aspect-video">
             <img
               :src="wallpaper.thumbnailUrl || wallpaper.fileUrl"
-              :alt="wallpaper.title"
               class="h-full w-full object-cover"
               @load="handleImageLoad"
             />
@@ -173,22 +172,24 @@
               class="flex items-center justify-between text-xs text-gray-500"
             >
               <span>分辨率 {{ wallpaper.width }}×{{ wallpaper.height }}</span>
-              <div class="flex gap-2">
-                <span class="flex items-center gap-1">
-                  <i class="i-mdi-eye text-sm text-blue-500">
-                    {{ (wallpaper as any).viewCount || 0 }}
-                  </i>
-                </span>
-                <span class="flex items-center gap-1">
-                  <i class="i-mdi-heart text-sm text-red-500">
-                    {{ (wallpaper as any).likeCount || 0 }}
-                  </i>
-                </span>
-                <span class="flex items-center gap-1">
-                  <i class="i-mdi-star text-sm text-yellow-500">
-                    {{ (wallpaper as any).favoriteCount || 0 }}
-                  </i>
-                </span>
+              <div class="flex gap-3">
+                <!-- 查看数 -->
+                <div class="flex items-center gap-1 text-sm">
+                  <span class="text-blue-500">👁️‍🗨️</span>
+                  <span>{{ (wallpaper as any).viewCount || 0 }}</span>
+                </div>
+
+                <!-- 点赞数 -->
+                <div class="flex items-center gap-1 text-sm">
+                  <span class="text-green-500">👍🏻</span>
+                  <span>{{ (wallpaper as any).likeCount || 0 }}</span>
+                </div>
+
+                <!-- 收藏数 -->
+                <div class="flex items-center gap-1 text-sm">
+                  <span class="text-yellow-500">⭐</span>
+                  <span>{{ (wallpaper as any).favoriteCount || 0 }}</span>
+                </div>
               </div>
             </div>
           </div>

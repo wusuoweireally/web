@@ -7,7 +7,10 @@
         <!-- Logo 和品牌 -->
         <div class="ml-8 flex items-center">
           <div class="flex-shrink-0">
-            <router-link to="/" class="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-2xl font-bold text-transparent">
+            <router-link
+              to="/"
+              class="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-2xl font-bold text-transparent"
+            >
               随心壁纸
             </router-link>
           </div>
@@ -57,9 +60,7 @@
                   :alt="user?.username || '用户'"
                   class="h-8 w-8 rounded-full object-cover ring-2 ring-white"
                 />
-                <span
-                  class="hidden text-sm font-medium text-gray-700 sm:block"
-                >
+                <span class="hidden text-sm font-medium text-gray-700 sm:block">
                   {{ user?.username }}
                 </span>
                 <svg
@@ -81,7 +82,7 @@
               <!-- 下拉菜单 -->
               <div
                 v-if="showDropdown"
-                class="ring-opacity-5 absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black focus:outline-none"
+                class="ring-opacity-5 absolute right-0 mt-2 w-30 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black focus:outline-none"
                 role="menu"
               >
                 <router-link

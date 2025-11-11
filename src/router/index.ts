@@ -179,17 +179,6 @@ const routes: RouteRecordRaw[] = [
     },
   },
 
-  // 测试上传页面
-  {
-    path: "/test-upload",
-    name: "TestUpload",
-    component: () => import("@/views/test-upload.vue"),
-    meta: {
-      title: "测试上传",
-      requiresAuth: false,
-    },
-  },
-
   // 404 页面
   {
     path: "/:pathMatch(.*)*",
