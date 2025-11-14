@@ -22,7 +22,9 @@
             <router-link
               :to="item.to"
               class="rounded-md px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-900"
-              active-class="bg-blue-100 text-blue-700"
+              :class="{
+                'bg-blue-100 text-blue-700': isNavItemActive(item),
+              }"
             >
               {{ item.name }}
             </router-link>
@@ -128,9 +130,11 @@
 
 <script lang="ts" setup>
 import { ref, onMounted, computed, onUnmounted } from "vue";
+import { useRoute } from "vue-router";
 import { useUserStore } from "@/stores/index";
 
 const userStore = useUserStore();
+const route = useRoute();
 const showDropdown = ref(false);
 
 // 计算属性
@@ -141,15 +145,18 @@ const userAvatar = computed(() => userStore.userAvatar);
 const navItems = [
   {
     name: "最新壁纸",
-    to: "/latest",
+    to: { path: "/wallpapers", query: { sort: "latest" } },
+    sortValue: "latest",
   },
   {
     name: "排行榜",
-    to: "/top",
+    to: { path: "/wallpapers", query: { sort: "popular" } },
+    sortValue: "popular",
   },
   {
     name: "随机壁纸",
-    to: "/random",
+    to: { path: "/wallpapers", query: { sort: "random" } },
+    sortValue: "random",
   },
   {
     name: "上传壁纸",
@@ -160,6 +167,16 @@ const navItems = [
     to: "/forums",
   },
 ];
+
+// 判断导航项是否激活
+const isNavItemActive = (item: any) => {
+  if (item.sortValue) {
+    // 对于有 sortValue 的项，检查路由路径和查询参数
+    return route.path === "/wallpapers" && route.query.sort === item.sortValue;
+  }
+  // 对于其他项，使用默认的 router-link active 判断
+  return false;
+};
 
 // 切换下拉菜单
 const toggleDropdown = () => {

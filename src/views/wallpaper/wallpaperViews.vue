@@ -233,7 +233,7 @@
 
 <script lang="ts" setup>
 import { ref, computed, onMounted, watch } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { wallpaperService, type Wallpaper } from "@/services/wallpaper";
 import NavBar from "@/components/NavBar.vue";
 
@@ -259,21 +259,32 @@ interface ExtendedWallpaper extends Wallpaper {
 }
 
 const route = useRoute();
+const router = useRouter();
 const loading = ref(false);
 const wallpapers = ref<ExtendedWallpaper[]>([]);
 const currentPage = ref(1);
 const pageSize = 20;
 const totalCount = ref(0);
 
+// 排序映射表：前端值 -> API 参数
+const sortMapping = {
+  latest: { sortBy: "createdAt", sortOrder: "DESC" },
+  popular: { sortBy: "likes", sortOrder: "DESC" },
+  random: { sortBy: "random", sortOrder: "DESC" },
+} as const;
+
 // 筛选条件
-const sortBy = ref("latest"); // latest, popular, random
+const sortBy = ref<"latest" | "popular" | "random">("latest");
 const currentCategory = ref("");
 const currentResolution = ref("");
 const currentRatio = ref("");
 const searchKeyword = ref("");
 
 // 筛选选项
-const sortOptions = [
+const sortOptions: Array<{
+  value: "latest" | "popular" | "random";
+  label: string;
+}> = [
   { value: "latest", label: "最新上传" },
   { value: "popular", label: "最受欢迎" },
   { value: "random", label: "随机推荐" },
@@ -317,24 +328,39 @@ const visiblePages = computed(() => {
   return pages;
 });
 
-// 从路由参数获取初始筛选条件
-onMounted(() => {
-  const type = route.params.type as string;
-  if (type) {
-    switch (type) {
-      case "latest":
-        sortBy.value = "latest";
-        break;
-      case "top":
-        sortBy.value = "popular";
-        break;
-      case "random":
-        sortBy.value = "random";
-        break;
-    }
+// 从路由查询参数初始化排序方式
+const initSortFromRoute = () => {
+  const sortParam = route.query.sort as string;
+  if (sortParam && ["latest", "popular", "random"].includes(sortParam)) {
+    sortBy.value = sortParam as "latest" | "popular" | "random";
+  } else {
+    // 如果没有查询参数，默认使用 latest
+    sortBy.value = "latest";
   }
+};
+
+// 初始化
+onMounted(() => {
+  initSortFromRoute();
   fetchWallpapers();
 });
+
+// 监听路由查询参数变化（当用户通过导航栏切换时）
+watch(
+  () => route.query.sort,
+  (newSort) => {
+    if (
+      newSort &&
+      ["latest", "popular", "random"].includes(newSort as string)
+    ) {
+      const newSortValue = newSort as "latest" | "popular" | "random";
+      if (sortBy.value !== newSortValue) {
+        sortBy.value = newSortValue;
+        currentPage.value = 1; // 切换排序时重置到第一页
+      }
+    }
+  },
+);
 
 // 监听筛选条件变化
 watch(
@@ -355,38 +381,35 @@ watch(
 const fetchWallpapers = async () => {
   loading.value = true;
   try {
+    // 使用映射表获取排序参数
+    const sortConfig = sortMapping[sortBy.value];
+
+    // 解析分辨率
+    let minWidth: number | undefined;
+    let maxWidth: number | undefined;
+    let minHeight: number | undefined;
+    let maxHeight: number | undefined;
+
+    if (currentResolution.value) {
+      const [width, height] = currentResolution.value.split("x").map(Number);
+      minWidth = maxWidth = width;
+      minHeight = maxHeight = height;
+    }
+
     const response = await wallpaperService.getWallpapers({
       page: currentPage.value,
       limit: pageSize,
-      search: searchKeyword.value,
-      sortBy:
-        sortBy.value === "latest"
-          ? "createdAt"
-          : sortBy.value === "popular"
-            ? "likes"
-            : "random",
-      sortOrder:
-        sortBy.value === "latest"
-          ? "DESC"
-          : sortBy.value === "popular"
-            ? "DESC"
-            : "DESC",
-      category: currentCategory.value,
+      search: searchKeyword.value || undefined,
+      sortBy: sortConfig.sortBy,
+      sortOrder: sortConfig.sortOrder,
+      category: currentCategory.value || undefined,
       aspectRatio: currentRatio.value
-        ? parseFloat(currentRatio.value)
+        ? parseFloat(currentRatio.value.replace(":", "/"))
         : undefined,
-      minWidth: currentResolution.value
-        ? parseInt(currentResolution.value.split("x")[0])
-        : undefined,
-      maxWidth: currentResolution.value
-        ? parseInt(currentResolution.value.split("x")[0])
-        : undefined,
-      minHeight: currentResolution.value
-        ? parseInt(currentResolution.value.split("x")[1])
-        : undefined,
-      maxHeight: currentResolution.value
-        ? parseInt(currentResolution.value.split("x")[1])
-        : undefined,
+      minWidth,
+      maxWidth,
+      minHeight,
+      maxHeight,
       tags: [],
     });
 
@@ -433,9 +456,17 @@ const handleImageLoad = (event: Event) => {
 };
 
 // 切换排序方式
-const changeSort = (sort: string) => {
+const changeSort = (sort: "latest" | "popular" | "random") => {
   sortBy.value = sort;
   currentPage.value = 1;
+  // 更新路由查询参数，保持 URL 与状态同步
+  router.push({
+    path: route.path,
+    query: {
+      ...route.query,
+      sort: sort,
+    },
+  });
 };
 
 // 切换分类

@@ -18,31 +18,26 @@ const routes: RouteRecordRaw[] = [
 
   // 壁纸浏览路由 - 统一使用 wallpaperViews 组件
   {
-    path: "/latest",
-    name: "LatestWallpapers",
+    path: "/wallpapers",
+    name: "Wallpapers",
     component: () => import("@/views/wallpaper/wallpaperViews.vue"),
     meta: {
-      title: "最新壁纸",
+      title: "壁纸列表",
       requiresAuth: false,
     },
+  },
+  // 旧路径重定向到统一路由并携带查询参数
+  {
+    path: "/latest",
+    redirect: () => ({ path: "/wallpapers", query: { sort: "latest" } }),
   },
   {
     path: "/top",
-    name: "TopWallpapers",
-    component: () => import("@/views/wallpaper/wallpaperViews.vue"),
-    meta: {
-      title: "排行榜",
-      requiresAuth: false,
-    },
+    redirect: () => ({ path: "/wallpapers", query: { sort: "popular" } }),
   },
   {
     path: "/random",
-    name: "RandomWallpapers",
-    component: () => import("@/views/wallpaper/wallpaperViews.vue"),
-    meta: {
-      title: "随机壁纸",
-      requiresAuth: false,
-    },
+    redirect: () => ({ path: "/wallpapers", query: { sort: "random" } }),
   },
   {
     path: "/wallpaper/:id",
