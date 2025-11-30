@@ -17,6 +17,8 @@ declare module "vue-router" {
 		description?: string;
 		// 是否缓存页面
 		keepAlive?: boolean;
+		// 是否显示导航栏
+		showNavBar?: boolean;
 	}
 }
 

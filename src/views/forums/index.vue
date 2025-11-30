@@ -1,433 +1,447 @@
 <template>
-  <div class="min-h-screen bg-base-200">
-    <!-- 导航栏 -->
-    <nav class="navbar bg-base-100 shadow-sm">
-      <div class="flex-1">
-        <h1 class="text-xl font-bold">社区论坛</h1>
-      </div>
-      <div class="flex-none">
-        <button 
-          class="btn btn-primary"
-          @click="showCreateModal = true"
-          v-if="userStore.isLoggedIn"
-        >
-          <i class="i-mdi-plus text-lg"></i>
-          发帖
-        </button>
-      </div>
-    </nav>
-
-    <div class="container mx-auto px-4 py-8">
-      <!-- 论坛分类 -->
-      <div class="tabs tabs-boxed mb-6">
-        <button 
-          class="tab"
-          :class="{ 'tab-active': activeCategory === 'all' }"
-          @click="activeCategory = 'all'"
-        >
-          全部
-        </button>
-        <button 
-          class="tab"
-          :class="{ 'tab-active': activeCategory === 'discussion' }"
-          @click="activeCategory = 'discussion'"
-        >
-          讨论
-        </button>
-        <button 
-          class="tab"
-          :class="{ 'tab-active': activeCategory === 'help' }"
-          @click="activeCategory = 'help'"
-        >
-          求助
-        </button>
-        <button 
-          class="tab"
-          :class="{ 'tab-active': activeCategory === 'share' }"
-          @click="activeCategory = 'share'"
-        >
-          分享
-        </button>
-      </div>
-
-      <!-- 帖子列表 -->
-      <div class="space-y-4">
-        <div 
-          v-for="post in filteredPosts" 
-          :key="post.id"
-          class="card bg-base-100 shadow-md hover:shadow-lg transition-shadow cursor-pointer"
-          @click="viewPost(post.id)"
-        >
-          <div class="card-body">
-            <div class="flex items-start justify-between">
-              <div class="flex-1">
-                <h2 class="card-title text-lg">{{ post.title }}</h2>
-                <p class="text-gray-700 line-clamp-2">{{ post.content }}</p>
-              </div>
-              <div class="flex items-center gap-4 text-sm text-gray-500">
-                <span class="flex items-center gap-1">
-                  <i class="i-mdi-comment"></i>
-                  {{ post.commentCount }}
-                </span>
-                <span class="flex items-center gap-1">
-                  <i class="i-mdi-heart"></i>
-                  {{ post.likeCount }}
-                </span>
-              </div>
-            </div>
-            
-            <div class="flex items-center justify-between text-sm text-gray-500">
-              <div class="flex items-center gap-2">
-                <div class="avatar">
-                  <div class="w-6 h-6 rounded-full">
-                    <img :src="post.author.avatar" :alt="post.author.name" />
-                  </div>
-                </div>
-                <span>{{ post.author.name }}</span>
-                <span>•</span>
-                <span>{{ formatTime(post.createTime) }}</span>
-              </div>
-              
-              <span class="badge badge-outline">{{ post.category }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- 空状态 -->
-        <div v-if="filteredPosts.length === 0" class="text-center py-12">
-          <i class="i-mdi-forum-outline text-6xl text-gray-300 mb-4"></i>
-          <p class="text-gray-500 text-lg">暂无帖子</p>
-          <button 
-            class="btn btn-primary mt-4"
-            @click="showCreateModal = true"
-            v-if="userStore.isLoggedIn"
-          >
-            发布第一个帖子
-          </button>
-          <div v-else class="mt-4">
-            <p class="text-gray-500">登录后可以发帖和参与讨论</p>
-            <button 
-              class="btn btn-primary mt-2"
-              @click="$router.push('/auth/login')"
+  <div
+    class="min-h-screen bg-gradient-to-b from-base-100 via-base-200 to-base-300"
+  >
+    
+    <section class="mx-auto w-full max-w-6xl px-4 py-10">
+      <div
+        class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 p-8 text-white shadow-xl"
+      >
+        <div class="space-y-3">
+          <p class="text-sm tracking-[0.4em] text-white/80 uppercase">
+            Community
+          </p>
+          <h1 class="text-4xl font-black">壁纸社区 · 分享灵感</h1>
+          <p class="max-w-3xl text-lg text-white/80">
+            记录创意、交流经验、寻找志同道合的伙伴，热门讨论与精选内容每日更新。
+          </p>
+          <div class="flex flex-wrap gap-3 pt-2">
+            <button class="btn btn-sm btn-primary" @click="handleCreatePost">
+              <i class="i-mdi-pencil-outline text-lg"></i>
+              发起讨论
+            </button>
+            <button
+              class="btn border-white/50 text-white btn-outline btn-sm hover:bg-white/10"
+              @click="handleSortChange"
             >
-              立即登录
+              <i class="i-mdi-fire text-lg"></i>
+              浏览热门
             </button>
           </div>
         </div>
+        <div
+          class="pointer-events-none absolute top-0 -right-24 h-full w-72 rotate-12 bg-white/10 blur-3xl"
+        ></div>
       </div>
+    </section>
 
-      <!-- 分页 -->
-      <div class="flex justify-center mt-8" v-if="filteredPosts.length > 0">
-        <div class="join">
-          <button class="join-item btn" :disabled="currentPage === 1" @click="currentPage--">
-            «
-          </button>
-          <button class="join-item btn" v-for="page in totalPages" :key="page" 
-            :class="{ 'btn-active': page === currentPage }"
-            @click="currentPage = page"
+    <div
+      class="mx-auto grid w-full max-w-6xl gap-6 px-4 pb-12 lg:grid-cols-[3fr_1fr]"
+    >
+      <section class="space-y-6">
+        <div class="rounded-2xl bg-base-100/80 p-5 shadow">
+          <div
+            class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"
           >
-            {{ page }}
-          </button>
-          <button class="join-item btn" :disabled="currentPage === totalPages" @click="currentPage++">
-            »
-          </button>
+            <div>
+              <h2 class="text-2xl font-semibold text-base-content">论坛动态</h2>
+              <p class="text-base-content/60">发现和分享壁纸相关的讨论</p>
+            </div>
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <label class="input-bordered input flex items-center gap-2">
+                <i class="i-mdi-magnify"></i>
+                <input
+                  v-model="searchQuery"
+                  type="text"
+                  placeholder="搜索帖子、作者或标签"
+                  class="grow"
+                  @input="handleSearch"
+                />
+              </label>
+              <button class="btn btn-primary" @click="handleCreatePost">
+                <i class="i-mdi-plus text-lg"></i>
+                发布帖子
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
 
-    <!-- 发帖模态框 -->
-    <div class="modal" :class="{ 'modal-open': showCreateModal }">
-      <div class="modal-box">
-        <h3 class="font-bold text-lg">发布新帖子</h3>
-        
-        <div class="form-control mt-4">
-          <label class="label">
-            <span class="label-text">标题</span>
-          </label>
-          <input
-            type="text"
-            v-model="newPost.title"
-            placeholder="请输入帖子标题"
-            class="input input-bordered"
-            :class="{ 'input-error': postErrors.title }"
+        <div class="rounded-2xl bg-base-100/80 p-5 shadow">
+          <div
+            class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+          >
+            <div class="flex flex-wrap gap-2">
+              <button
+                v-for="category in forumStore.postCategories"
+                :key="category.value"
+                class="btn rounded-full btn-sm"
+                :class="{
+                  'btn-primary': forumStore.filters.category === category.value,
+                  'btn-outline': forumStore.filters.category !== category.value,
+                }"
+                @click="handleCategoryChange(category.value)"
+              >
+                {{ category.label }}
+              </button>
+            </div>
+            <div class="flex gap-2">
+              <select
+                v-model="forumStore.filters.sortBy"
+                class="select-bordered select select-sm"
+                @change="handleSortChange"
+              >
+                <option value="createdAt">最新发布</option>
+                <option value="viewCount">浏览最多</option>
+                <option value="likeCount">点赞最多</option>
+                <option value="commentCount">评论最多</option>
+                <option value="popular">热门推荐</option>
+              </select>
+              <select
+                v-model="forumStore.filters.sortOrder"
+                class="select-bordered select select-sm"
+                @change="handleSortChange"
+              >
+                <option value="DESC">降序</option>
+                <option value="ASC">升序</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div
+          v-if="forumStore.loading"
+          class="flex min-h-[40vh] items-center justify-center rounded-2xl bg-base-100/80 shadow"
+        >
+          <span class="loading loading-lg loading-spinner text-primary"></span>
+        </div>
+        <div
+          v-else-if="forumStore.error"
+          class="rounded-2xl bg-error/10 p-6 text-error shadow"
+        >
+          <div class="flex items-center gap-3">
+            <i class="i-mdi-alert-circle text-2xl"></i>
+            <span>{{ forumStore.error }}</span>
+            <button class="btn btn-sm" @click="fetchPosts">重试</button>
+          </div>
+        </div>
+        <div v-else class="space-y-4">
+          <PostCard
+            v-for="post in forumStore.filteredPosts"
+            :key="post.id"
+            :post="post"
+            @like="handleLike"
+            @comment="handleComment"
+            @edit="handleEdit"
+            @delete="handleDelete"
+            @share="handleShare"
           />
-          <label class="label" v-if="postErrors.title">
-            <span class="label-text-alt text-error">{{ postErrors.title }}</span>
-          </label>
-        </div>
-
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text">内容</span>
-          </label>
-          <textarea
-            v-model="newPost.content"
-            placeholder="请输入帖子内容..."
-            class="textarea textarea-bordered h-32"
-            :class="{ 'textarea-error': postErrors.content }"
-          ></textarea>
-          <label class="label" v-if="postErrors.content">
-            <span class="label-text-alt text-error">{{ postErrors.content }}</span>
-          </label>
-        </div>
-
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text">分类</span>
-          </label>
-          <select 
-            v-model="newPost.category"
-            class="select select-bordered"
-            :class="{ 'select-error': postErrors.category }"
+          <div
+            v-if="forumStore.filteredPosts.length === 0"
+            class="rounded-2xl bg-base-100/80 p-10 text-center shadow"
           >
-            <option value="" disabled>请选择分类</option>
-            <option value="discussion">讨论</option>
-            <option value="help">求助</option>
-            <option value="share">分享</option>
-          </select>
-          <label class="label" v-if="postErrors.category">
-            <span class="label-text-alt text-error">{{ postErrors.category }}</span>
-          </label>
+            <i
+              class="i-mdi-forum-outline mb-4 text-6xl text-base-content/20"
+            ></i>
+            <p class="text-lg text-base-content/70">
+              {{
+                forumStore.filters.search
+                  ? "没有找到相关帖子"
+                  : "暂时还没有帖子，来分享第一个吧！"
+              }}
+            </p>
+            <div class="mt-4 flex justify-center gap-2">
+              <button class="btn btn-primary" @click="handleCreatePost">
+                发布帖子
+              </button>
+              <button
+                class="btn btn-outline"
+                v-if="forumStore.filters.search"
+                @click="forumStore.resetFilters()"
+              >
+                清除筛选
+              </button>
+            </div>
+          </div>
         </div>
 
-        <div class="modal-action">
-          <button class="btn btn-ghost" @click="showCreateModal = false">取消</button>
-          <button 
-            class="btn btn-primary"
-            :class="{ 'loading': postLoading }"
-            @click="createPost"
-          >
-            发布
-          </button>
+        <div
+          v-if="
+            forumStore.filteredPosts.length > 0 &&
+            forumStore.postsPagination.totalPages > 1
+          "
+          class="flex justify-center"
+        >
+          <div class="join">
+            <button
+              class="btn join-item btn-sm"
+              :disabled="forumStore.postsPagination.currentPage === 1"
+              @click="goToPage(forumStore.postsPagination.currentPage - 1)"
+            >
+              «
+            </button>
+            <button
+              v-for="(page, index) in visiblePages"
+              :key="
+                typeof page === 'number' ? `page-${page}` : `ellipsis-${index}`
+              "
+              class="btn join-item btn-sm"
+              :class="{
+                'btn-active': page === forumStore.postsPagination.currentPage,
+                'btn-disabled': typeof page === 'string',
+              }"
+              @click="typeof page === 'number' ? goToPage(page) : undefined"
+            >
+              {{ page }}
+            </button>
+            <button
+              class="btn join-item btn-sm"
+              :disabled="
+                forumStore.postsPagination.currentPage ===
+                forumStore.postsPagination.totalPages
+              "
+              @click="goToPage(forumStore.postsPagination.currentPage + 1)"
+            >
+              »
+            </button>
+          </div>
         </div>
-      </div>
+      </section>
+
+      <aside class="space-y-6">
+        <div class="rounded-2xl bg-base-100/80 p-5 shadow">
+          <h3 class="text-lg font-semibold text-base-content">热门帖子</h3>
+          <ul class="mt-3 space-y-4">
+            <li
+              v-for="post in forumStore.popularPosts"
+              :key="`popular-${post.id}`"
+              class="group cursor-pointer rounded-xl border border-base-200 p-3 transition hover:border-primary/40 hover:bg-base-200/40"
+              @click="$router.push(`/forums/post/${post.id}`)"
+            >
+              <p
+                class="font-semibold text-base-content group-hover:text-primary"
+              >
+                {{ post.title }}
+              </p>
+              <div
+                class="mt-1 flex items-center gap-3 text-sm text-base-content/70"
+              >
+                <span>👁 {{ post.viewCount }}</span>
+                <span>👍 {{ post.likeCount }}</span>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </aside>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { useUserStore } from '@/stores'
+import { ref, computed, onMounted, onUnmounted, watch } from "vue";
+import { useRouter } from "vue-router";
+import { useForumStore } from "@/stores/forum";
+import { useUserStore } from "@/stores";
+import { forumService } from "@/services/forum";
+import PostCard from "@/components/PostCard.vue";
+import type { Post } from "@/stores/forum";
 
-const router = useRouter()
-const userStore = useUserStore()
+defineOptions({ name: "ForumIndex" });
 
-const activeCategory = ref('all')
-const currentPage = ref(1)
-const showCreateModal = ref(false)
-const postLoading = ref(false)
+const router = useRouter();
+const forumStore = useForumStore();
+const userStore = useUserStore();
 
-// 模拟帖子数据
-const posts = ref([
-  {
-    id: 1,
-    title: '分享一些4K壁纸制作技巧',
-    content: '最近在研究4K壁纸制作，发现了一些不错的技巧和大家分享。首先要选择合适的原始素材，分辨率要足够高...',
-    category: 'share',
-    author: {
-      id: 1,
-      name: '星空爱好者',
-      avatar: 'https://picsum.photos/100/100?random=1'
-    },
-    createTime: '2024-01-15T10:30:00',
-    commentCount: 8,
-    likeCount: 15
-  },
-  {
-    id: 2,
-    title: '求推荐适合编程的暗色系壁纸',
-    content: '长时间编程需要保护眼睛，大家有没有好的暗色系壁纸推荐？最好是深色背景，对比度适中的...',
-    category: 'help',
-    author: {
-      id: 2,
-      name: '程序员小张',
-      avatar: 'https://picsum.photos/100/100?random=2'
-    },
-    createTime: '2024-01-14T15:20:00',
-    commentCount: 12,
-    likeCount: 23
-  },
-  {
-    id: 3,
-    title: '大家最喜欢哪种风格的壁纸？',
-    content: '想了解一下大家都喜欢什么风格的壁纸？是风景、抽象、动漫还是其他风格？一起来讨论吧！',
-    category: 'discussion',
-    author: {
-      id: 3,
-      name: '壁纸收藏家',
-      avatar: 'https://picsum.photos/100/100?random=3'
-    },
-    createTime: '2024-01-13T09:45:00',
-    commentCount: 25,
-    likeCount: 34
+const searchQuery = ref("");
+const searchTimeout = ref<ReturnType<typeof setTimeout> | null>(null);
+
+const visiblePages = computed(() => {
+  const current = forumStore.postsPagination.currentPage;
+  const total = forumStore.postsPagination.totalPages;
+  const delta = 2;
+  const range: number[] = [];
+  const rangeWithDots: (number | string)[] = [];
+  let l: number | undefined;
+
+  for (let i = 1; i <= total; i += 1) {
+    if (
+      i === 1 ||
+      i === total ||
+      (i >= current - delta && i <= current + delta)
+    ) {
+      range.push(i);
+    }
   }
-])
 
-// 新帖子数据
-const newPost = reactive({
-  title: '',
-  content: '',
-  category: ''
-})
+  range.forEach((i) => {
+    if (l) {
+      if (i - l === 2) {
+        rangeWithDots.push(l + 1);
+      } else if (i - l !== 1) {
+        rangeWithDots.push("...");
+      }
+    }
+    rangeWithDots.push(i);
+    l = i;
+  });
 
-// 错误信息
-const postErrors = reactive({
-  title: '',
-  content: '',
-  category: ''
-})
+  return rangeWithDots;
+});
 
-// 过滤后的帖子
-const filteredPosts = computed(() => {
-  let filtered = posts.value
-  
-  if (activeCategory.value !== 'all') {
-    filtered = filtered.filter(post => post.category === activeCategory.value)
+const fetchPosts = async (reset = false) => {
+  if (reset) {
+    forumStore.setPostsPagination({ currentPage: 1 });
   }
-  
-  // 简单的分页逻辑
-  const start = (currentPage.value - 1) * 10
-  const end = start + 10
-  return filtered.slice(start, end)
-})
 
-// 总页数
-const totalPages = computed(() => {
-  let filtered = posts.value
-  if (activeCategory.value !== 'all') {
-    filtered = filtered.filter(post => post.category === activeCategory.value)
-  }
-  return Math.ceil(filtered.length / 10)
-})
-
-// 格式化时间
-const formatTime = (timeString: string) => {
-  const time = new Date(timeString)
-  const now = new Date()
-  const diff = now.getTime() - time.getTime()
-  
-  if (diff < 60000) return '刚刚'
-  if (diff < 3600000) return `${Math.floor(diff / 60000)}分钟前`
-  if (diff < 86400000) return `${Math.floor(diff / 3600000)}小时前`
-  if (diff < 2592000000) return `${Math.floor(diff / 86400000)}天前`
-  
-  return time.toLocaleDateString()
-}
-
-// 查看帖子详情
-const viewPost = (postId: number) => {
-  router.push(`/forums/post/${postId}`)
-}
-
-// 验证发帖表单
-const validatePost = () => {
-  let isValid = true
-  
-  // 清空错误信息
-  Object.keys(postErrors).forEach(key => {
-    postErrors[key as keyof typeof postErrors] = ''
-  })
-  
-  // 验证标题
-  if (!newPost.title.trim()) {
-    postErrors.title = '标题不能为空'
-    isValid = false
-  } else if (newPost.title.length > 100) {
-    postErrors.title = '标题不能超过100个字符'
-    isValid = false
-  }
-  
-  // 验证内容
-  if (!newPost.content.trim()) {
-    postErrors.content = '内容不能为空'
-    isValid = false
-  } else if (newPost.content.length > 2000) {
-    postErrors.content = '内容不能超过2000个字符'
-    isValid = false
-  }
-  
-  // 验证分类
-  if (!newPost.category) {
-    postErrors.category = '请选择分类'
-    isValid = false
-  }
-  
-  return isValid
-}
-
-// 创建帖子
-const createPost = async () => {
-  if (!validatePost()) return
-  
-  postLoading.value = true
-  
   try {
-    // 这里应该调用创建帖子的API
-    // const response = await api.post('/forums/posts', newPost)
-    
-    // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    // 添加到帖子列表
-    posts.value.unshift({
-      id: Date.now(),
-      title: newPost.title,
-      content: newPost.content,
-      category: newPost.category,
-      author: {
-        id: userStore.user?.id || 0,
-        name: userStore.user?.username || '匿名用户',
-        avatar: userStore.userAvatar
-      },
-      createTime: new Date().toISOString(),
-      commentCount: 0,
-      likeCount: 0
-    })
-    
-    // 重置表单
-    newPost.title = ''
-    newPost.content = ''
-    newPost.category = ''
-    showCreateModal.value = false
-    
-    alert('帖子发布成功！')
-  } catch (error: any) {
-    console.error('发布失败:', error)
-    alert(error.message || '发布失败，请重试')
+    forumStore.setLoading(true);
+    forumStore.setError(null);
+
+    const { data, pagination } = await forumService.getPosts({
+      page: forumStore.postsPagination.currentPage,
+      limit: forumStore.postsPagination.pageSize,
+      sortBy: forumStore.filters.sortBy,
+      sortOrder: forumStore.filters.sortOrder as "ASC" | "DESC",
+      category: forumStore.filters.category || undefined,
+      search: forumStore.filters.search || undefined,
+    });
+
+    forumStore.setPosts(data);
+    forumStore.setPostsPagination({
+      currentPage: pagination.currentPage,
+      totalPages: pagination.totalPages,
+      totalCount: pagination.totalCount,
+    });
+  } catch (error) {
+    console.error("获取帖子失败:", error);
+    forumStore.setError("获取帖子失败，请稍后重试");
   } finally {
-    postLoading.value = false
+    forumStore.setLoading(false);
   }
-}
+};
+
+const handleSearch = () => {
+  if (searchTimeout.value) {
+    clearTimeout(searchTimeout.value);
+  }
+
+  searchTimeout.value = setTimeout(() => {
+    forumStore.updateFilters({ search: searchQuery.value });
+    fetchPosts(true);
+  }, 500);
+};
+
+const handleCategoryChange = (category: string) => {
+  const newCategory = forumStore.filters.category === category ? "" : category;
+  forumStore.updateFilters({ category: newCategory as any });
+  fetchPosts(true);
+};
+
+const handleSortChange = () => {
+  fetchPosts(true);
+};
+
+const goToPage = (page: number) => {
+  if (page >= 1 && page <= forumStore.postsPagination.totalPages) {
+    forumStore.setPostsPagination({ currentPage: page });
+    fetchPosts();
+  }
+};
+
+const handleCreatePost = () => {
+  if (!userStore.isLoggedIn) {
+    router.push("/auth/login");
+    return;
+  }
+  router.push("/forums/new");
+};
+
+const handleLike = async (post: Post) => {
+  if (!userStore.isLoggedIn) {
+    router.push("/auth/login");
+    return;
+  }
+  try {
+    const hasLiked = post.isLiked;
+    if (hasLiked) {
+      await forumService.unlikePost(post.id);
+      forumStore.togglePostLike(post.id, false);
+    } else {
+      await forumService.likePost(post.id);
+      forumStore.togglePostLike(post.id, true);
+    }
+  } catch (error) {
+    console.error("点赞操作失败:", error);
+  }
+};
+
+const handleComment = (post: Post) => {
+  router.push(`/forums/post/${post.id}#comments`);
+};
+
+const handleEdit = (post: Post) => {
+  router.push(`/forums/edit/${post.id}`);
+};
+
+const handleDelete = async (post: Post) => {
+  try {
+    await forumService.deletePost(post.id);
+    forumStore.setPosts(forumStore.posts.filter((p) => p.id !== post.id));
+  } catch (error) {
+    console.error("删除帖子失败:", error);
+  }
+};
+
+const handleShare = (post: Post) => {
+  const shareUrl = `${window.location.origin}/forums/post/${post.id}`;
+  if (navigator.share) {
+    navigator.share({
+      title: post.title,
+      text: post.summary || post.title,
+      url: shareUrl,
+    });
+  } else {
+    navigator.clipboard.writeText(shareUrl);
+    alert("链接已复制到剪贴板");
+  }
+};
+
+onMounted(() => {
+  const route = router.currentRoute.value;
+  if (route.query.category) {
+    forumStore.updateFilters({ category: route.query.category as string });
+  }
+  if (route.query.search) {
+    searchQuery.value = route.query.search as string;
+    forumStore.updateFilters({ search: route.query.search as string });
+  }
+  fetchPosts();
+});
+
+onUnmounted(() => {
+  if (searchTimeout.value) {
+    clearTimeout(searchTimeout.value);
+    searchTimeout.value = null;
+  }
+});
+
+watch(
+  () => router.currentRoute.value.query,
+  (newQuery) => {
+    if (newQuery.category !== forumStore.filters.category) {
+      forumStore.updateFilters({
+        category: (newQuery.category as string) || "",
+      });
+      fetchPosts(true);
+    }
+    if (newQuery.search !== forumStore.filters.search) {
+      searchQuery.value = (newQuery.search as string) || "";
+      forumStore.updateFilters({ search: (newQuery.search as string) || "" });
+      fetchPosts(true);
+    }
+  },
+);
 </script>
 
 <style scoped>
-.line-clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-/* 卡片悬停效果 */
-.card {
-  transition: all 0.3s ease;
-}
-
-.card:hover {
-  transform: translateY(-1px);
-}
-
-/* 响应式调整 */
-@media (max-width: 768px) {
-  .container {
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
-  
-  .tabs {
-    overflow-x: auto;
-    white-space: nowrap;
-  }
-}
+/* 论坛页面样式已优化，移除了不必要的统计卡片样式 */
 </style>

@@ -32,10 +32,34 @@ const cancelTokenSources: Map<string, CancelTokenSource> = new Map();
 // 请求拦截器 - 添加请求取消功能
 api.interceptors.request.use(
   (config: CustomAxiosRequestConfig) => {
-    // 为每个请求生成唯一标识
-    const requestId = config.url || `request_${Date.now()}`;
+    // 生成更精确的请求ID，包含URL、方法和参数
+    const params = new URLSearchParams();
 
-    // 取消之前的相同请求（防止重复请求）
+    // 添加查询参数
+    if (config.params) {
+      Object.keys(config.params).forEach(key => {
+        const value = config.params[key];
+        if (value !== undefined && value !== null) {
+          params.set(key, String(value));
+        }
+      });
+    }
+
+    // 添加请求体数据（仅对GET请求，避免重复）
+    let bodyData = '';
+    if (config.method === 'get' && config.data) {
+      try {
+        bodyData = typeof config.data === 'string'
+          ? config.data
+          : JSON.stringify(config.data);
+      } catch (e) {
+        bodyData = String(config.data);
+      }
+    }
+
+    const requestId = `${config.method}_${config.url}_${params.toString()}_${bodyData}`;
+
+    // 只有完全相同的请求才取消（防止误判）
     if (cancelTokenSources.has(requestId)) {
       const source = cancelTokenSources.get(requestId);
       source?.cancel(`取消重复请求: ${requestId}`);
@@ -90,10 +114,14 @@ api.interceptors.response.use(
       }
     }
 
-    // 处理取消请求
+    // 处理取消请求 - 静默处理，不显示错误信息
     if (axios.isCancel(error)) {
-      console.warn("请求已被取消:", error.message);
-      return Promise.reject(error);
+      console.info("请求已被取消:", error.message);
+      // 对于取消的请求，返回一个特殊的错误对象，让上层可以识别
+      const cancelError = new Error('REQUEST_CANCELLED');
+      cancelError.name = 'REQUEST_CANCELLED';
+      cancelError.isCancelled = true;
+      return Promise.reject(cancelError);
     }
 
     console.error(
@@ -102,31 +130,81 @@ api.interceptors.response.use(
       error.config?.url,
     );
 
-    // 统一错误处理
-    if (error.response) {
-      switch (error.response.status) {
-        case 401:
-          console.error("认证失败，请重新登录");
-          break;
-        case 403:
-          console.error("权限不足");
-          break;
-        case 404:
-          console.error("资源不存在");
-          break;
-        case 500:
-          console.error("服务器错误");
-          break;
-        default:
-          console.error(`错误状态码: ${error.response.status}`);
-      }
-    } else if (error.request) {
-      console.error("网络错误，请检查网络连接");
-    } else {
-      console.error("请求配置错误");
+    // 统一错误处理 - 增强版：添加用户友好的提示
+    let errorMessage = "操作失败，请稍后重试";
+
+    // 处理超时错误
+    if (error.code === 'ECONNABORTED') {
+      errorMessage = "请求超时，请检查网络连接或稍后重试";
+      console.error("请求超时:", error.message);
+      alert(errorMessage);
+
+      const enhancedError = {
+        ...error,
+        userMessage: errorMessage,
+        timestamp: new Date().toISOString(),
+      };
+      return Promise.reject(enhancedError);
     }
 
-    return Promise.reject(error);
+    if (error.response) {
+      const status = error.response.status;
+      const message = error.response.data?.message || "";
+
+      switch (status) {
+        case 401:
+          errorMessage = "登录已过期，请重新登录";
+          console.error("认证失败:", message);
+          // 触发登出或跳转到登录页
+          // window.location.href = '/login';
+          break;
+        case 403:
+          errorMessage = "您没有权限执行此操作";
+          console.error("权限不足:", message);
+          break;
+        case 404:
+          errorMessage = "请求的资源不存在";
+          console.error("资源不存在:", message);
+          break;
+        case 422:
+          errorMessage = message || "输入数据验证失败，请检查您的输入";
+          console.error("验证失败:", message);
+          break;
+        case 500:
+          errorMessage = "服务器出现故障，请稍后重试";
+          console.error("服务器错误:", message);
+          break;
+        default:
+          errorMessage = message || `请求失败 (状态码: ${status})`;
+          console.error(`错误状态码 ${status}:`, message);
+      }
+
+      // 在开发环境中显示错误详情
+      if (import.meta.env.DEV) {
+        console.error("错误详情:", error.response.data);
+      }
+
+      // 给用户友好的提示
+      // 使用 alert 简单实现，实际项目中可以使用 UI 组件库的通知组件
+      alert(errorMessage);
+    } else if (error.request) {
+      errorMessage = "网络连接失败，请检查网络";
+      console.error("网络错误:", error.request);
+      alert(errorMessage);
+    } else {
+      errorMessage = "请求配置错误";
+      console.error("配置错误:", error.message);
+      alert(errorMessage);
+    }
+
+    // 包装错误对象，添加上下文信息
+    const enhancedError = {
+      ...error,
+      userMessage: errorMessage,
+      timestamp: new Date().toISOString(),
+    };
+
+    return Promise.reject(enhancedError);
   },
 );
 

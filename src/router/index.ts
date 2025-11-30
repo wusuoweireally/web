@@ -13,6 +13,7 @@ const routes: RouteRecordRaw[] = [
     meta: {
       title: "随心壁纸 - 首页",
       requiresAuth: false,
+      showNavBar: true,
     },
   },
 
@@ -24,6 +25,7 @@ const routes: RouteRecordRaw[] = [
     meta: {
       title: "壁纸列表",
       requiresAuth: false,
+      showNavBar: true,
     },
   },
   // 旧路径重定向到统一路由并携带查询参数
@@ -46,6 +48,7 @@ const routes: RouteRecordRaw[] = [
     meta: {
       title: "壁纸详情",
       requiresAuth: false,
+      showNavBar: true,
     },
   },
   {
@@ -55,6 +58,7 @@ const routes: RouteRecordRaw[] = [
     meta: {
       title: "上传壁纸",
       requiresAuth: true,
+      showNavBar: true,
     },
   },
 
@@ -72,6 +76,7 @@ const routes: RouteRecordRaw[] = [
           title: "用户登录",
           requiresAuth: false,
           hideForAuth: true, // 已登录用户隐藏
+          showNavBar: false, // 登录页面不显示导航栏
         },
       },
       {
@@ -82,6 +87,7 @@ const routes: RouteRecordRaw[] = [
           title: "用户注册",
           requiresAuth: false,
           hideForAuth: true,
+          showNavBar: false, // 注册页面不显示导航栏
         },
       },
     ],
@@ -96,6 +102,7 @@ const routes: RouteRecordRaw[] = [
     meta: {
       title: "个人中心",
       requiresAuth: true,
+      showNavBar: false, // 用户中心不显示主导航栏
     },
     children: [
       {
@@ -105,6 +112,7 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: "我的上传",
           requiresAuth: true,
+          showNavBar: false,
         },
       },
       {
@@ -114,6 +122,7 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: "我的收藏",
           requiresAuth: true,
+          showNavBar: false,
         },
       },
       {
@@ -123,6 +132,7 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: "我的点赞",
           requiresAuth: true,
+          showNavBar: false,
         },
       },
       {
@@ -132,6 +142,7 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: "账号设置",
           requiresAuth: true,
+          showNavBar: false,
         },
       },
     ],
@@ -144,33 +155,37 @@ const routes: RouteRecordRaw[] = [
     meta: {
       title: "社区论坛",
       requiresAuth: false,
+      showNavBar: true,
     },
   },
   {
-    path: "/forum/new",
+    path: "/forums/new",
     name: "ForumNewPost",
     component: () => import("@/views/forums/NewPost.vue"),
     meta: {
       title: "发布新帖",
       requiresAuth: true,
+      showNavBar: true,
     },
   },
   {
-    path: "/forum/post/:id",
+    path: "/forums/post/:id",
     name: "ForumPostDetail",
     component: () => import("@/views/forums/PostDetail.vue"),
     meta: {
       title: "帖子详情",
       requiresAuth: false,
+      showNavBar: true,
     },
   },
   {
-    path: "/forum/post/:id/edit",
+    path: "/forums/edit/:id",
     name: "ForumPostEdit",
     component: () => import("@/views/forums/EditPost.vue"),
     meta: {
       title: "编辑帖子",
       requiresAuth: true,
+      showNavBar: true,
     },
   },
 
@@ -181,6 +196,7 @@ const routes: RouteRecordRaw[] = [
     component: () => import("@/views/NotFound.vue"),
     meta: {
       title: "页面未找到",
+      showNavBar: true, // 404页面显示导航栏
     },
   },
 ];
@@ -200,6 +216,30 @@ const router = createRouter({
 
 // 路由守卫
 router.beforeEach(async (to, _from, next) => {
+  // 在路由切换前清理可能的DOM残留
+  if (typeof document !== 'undefined') {
+    // 清理所有可能的 Teleport 元素
+    const teleportElements = document.querySelectorAll('[data-teleport]');
+    teleportElements.forEach(el => el.remove());
+
+    // 清理所有可能的模态框背景
+    const modals = document.querySelectorAll('[data-modal-backdrop]');
+    modals.forEach(el => el.remove());
+
+    // 清理所有固定定位的可能残留元素
+    const fixedElements = document.querySelectorAll('.fixed.z-\\[9999\\]');
+    fixedElements.forEach(el => {
+      const elAny = el as any;
+      if (elAny._v_isTeleport || elAny.__vteleport) {
+        el.remove();
+      }
+    });
+
+    // 恢复 body 样式
+    document.body.style.overflow = '';
+    document.body.classList.remove('modal-open');
+  }
+
   // 设置页面标题
   if (to.meta.title) {
     document.title = to.meta.title as string;

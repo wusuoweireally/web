@@ -113,31 +113,39 @@ const showcaseWallpapers = ref<ExtendedWallpaper[]>([]);
 const fetchShowcaseWallpapers = async () => {
   loading.value = true;
   try {
-    // 获取热门壁纸作为精选壁纸
-    const response = await wallpaperService.getWallpapers({
-      page: 1,
-      limit: 8, // 只获取8张壁纸用于展示
-      sortBy: "likes",
-      sortOrder: "DESC",
-    });
+    console.log("🏠 [首页精选] 开始获取热门壁纸...");
+    // 使用专门的热门壁纸API获取精选壁纸
+    const response = await wallpaperService.getPopularWallpapers(8); // 获取8张热门壁纸
 
     if (response.data) {
+      console.log("🏠 [首页精选] API响应数据验证:");
+      response.data.forEach((wallpaper: any, index: number) => {
+        console.log(`  ${index + 1}. ID:${wallpaper.id} 浏览量:${wallpaper.viewCount} 标题:${wallpaper.title || '无标题'}`);
+      });
+
       showcaseWallpapers.value = response.data.map((wallpaper: any) => ({
         ...wallpaper,
         loaded: false,
         uploader: wallpaper.uploader || { username: "未知用户" },
         viewCount: wallpaper.viewCount || 0,
         likeCount: wallpaper.likeCount || 0,
-        tags:
-          wallpaper.category === "anime"
-            ? ["动漫", "二次元", "高清"]
-            : wallpaper.category === "people"
-              ? ["人物", "肖像", "艺术"]
-              : ["风景", "自然", "4K"],
+        // 处理真实的标签数据
+        tags: wallpaper.tags && wallpaper.tags.length > 0
+          ? wallpaper.tags.map((tag: any) => tag.name || tag)
+          : (wallpaper.category === "anime"
+              ? ["动漫", "二次元", "高清"]
+              : wallpaper.category === "people"
+                ? ["人物", "肖像", "艺术"]
+                : ["风景", "自然", "4K"]),
       }));
+
+      console.log("🏠 [首页精选] 处理后的数据顺序验证:");
+      showcaseWallpapers.value.forEach((wallpaper: any, index: number) => {
+        console.log(`  ${index + 1}. ID:${wallpaper.id} 浏览量:${wallpaper.viewCount}`);
+      });
     }
   } catch (error) {
-    console.error("获取精选壁纸失败:", error);
+    console.error("🏠 [首页精选] 获取精选壁纸失败:", error);
     showcaseWallpapers.value = [];
   } finally {
     loading.value = false;

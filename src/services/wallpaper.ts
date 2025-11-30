@@ -16,7 +16,10 @@ export interface WallpaperQueryParams {
   minHeight?: number;
   maxHeight?: number;
   aspectRatio?: number;
-  category?: string;
+  category?: 'general' | 'anime' | 'people';
+  format?: string;
+  minFileSize?: number;
+  maxFileSize?: number;
 }
 
 /**
@@ -29,30 +32,52 @@ export interface UploadWallpaperParams {
 }
 
 /**
+ * 标签接口
+ */
+export interface Tag {
+  id: number;
+  name: string;
+  slug: string;
+  usageCount: number;
+  createdAt: string;
+}
+
+/**
+ * 上传者接口
+ */
+export interface Uploader {
+  id: number;
+  username: string;
+  email: string;
+  avatarUrl?: string;
+  bio?: string;
+  status: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
  * 壁纸数据接口
  */
 export interface Wallpaper {
   id: number;
-  title?: string;
   fileUrl: string;
+  category: 'general' | 'anime' | 'people';
   thumbnailUrl?: string;
+  fileSize: number;
   width: number;
   height: number;
-  aspectRatio: string;
-  category: string;
-  tags: string[];
+  aspectRatio: number;
+  uploaderId: number;
+  uploader?: Uploader;
+  viewCount: number;
   likeCount: number;
   favoriteCount: number;
-  viewCount: number;
-  uploaderId: number;
-  uploader?: {
-    id: string;
-    username: string;
-    email: string;
-    avatarUrl?: string;
-  };
+  status: number;
+  isFeatured: boolean;
   createdAt: string;
   updatedAt: string;
+  tags?: Tag[];
   isLiked?: boolean;
   isFavorited?: boolean;
 }
@@ -132,16 +157,59 @@ class WallpaperService {
       if (params.maxWidth) queryParams.maxWidth = params.maxWidth;
       if (params.minHeight) queryParams.minHeight = params.minHeight;
       if (params.maxHeight) queryParams.maxHeight = params.maxHeight;
+      if (params.format) queryParams.format = params.format;
+      if (params.minFileSize) queryParams.minFileSize = params.minFileSize;
+      if (params.maxFileSize) queryParams.maxFileSize = params.maxFileSize;
 
       if (params.tags && params.tags.length > 0) {
         queryParams.tags = params.tags;
       }
 
-      const response = await api.get("/wallpapers", { params: queryParams });
+      const response = await api.get("/wallpapers", {
+        params: queryParams,
+        timeout: 10000 // 10秒超时
+      });
       return response;
-    } catch (error) {
+    } catch (error: any) {
       console.error("获取壁纸列表失败:", error);
-      throw error;
+
+      // 检查是否是请求被取消
+      if (error.name === 'REQUEST_CANCELLED' || error.isCancelled) {
+        // 请求被取消，静默处理，返回空结果但不抛出错误
+        return {
+          success: false,
+          message: '请求已取消',
+          data: [],
+          pagination: {
+            page: 1,
+            limit: 20,
+            total: 0,
+            pages: 0
+          }
+        };
+      }
+
+      // 详细的错误分类和友好的错误信息
+      if (error.code === 'ECONNABORTED') {
+        throw new Error('请求超时，请检查网络连接或稍后重试');
+      } else if (error.code === 'NETWORK_ERROR' || error.message.includes('Network Error')) {
+        throw new Error('网络连接失败，请检查网络设置');
+      } else if (error.response?.status === 400) {
+        throw new Error('请求参数错误，请检查筛选条件');
+      } else if (error.response?.status === 404) {
+        throw new Error('未找到相关壁纸，请尝试其他筛选条件');
+      } else if (error.response?.status === 401) {
+        throw new Error('身份验证失败，请重新登录');
+      } else if (error.response?.status === 403) {
+        throw new Error('权限不足，无法访问该内容');
+      } else if (error.response?.status >= 500) {
+        throw new Error('服务器暂时不可用，请稍后重试');
+      } else if (error.response?.data?.message) {
+        // 使用后端返回的具体错误信息
+        throw new Error(error.response.data.message);
+      } else {
+        throw new Error('获取壁纸失败，请稍后重试');
+      }
     }
   }
 

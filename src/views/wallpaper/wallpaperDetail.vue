@@ -72,6 +72,8 @@
                         <img
                           :src="wallpaper.uploader.avatar"
                           :alt="wallpaper.uploader.name"
+                          @error="handleAvatarError"
+                          class="object-cover"
                         />
                       </div>
                     </div>
@@ -172,7 +174,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 import { useRoute } from "vue-router";
 import { wallpaperService } from "@/services/wallpaper";
 import { useUserStore } from "@/stores";
@@ -204,6 +206,7 @@ const isLiked = ref(false);
 const isFavorited = ref(false);
 const loading = ref(false);
 const error = ref<string | null>(null);
+const detailTimeoutId = ref<NodeJS.Timeout | null>(null);
 
 // 壁纸详情数据
 const wallpaper = ref<WallpaperDetail>({
@@ -233,6 +236,7 @@ onMounted(() => {
 const fetchWallpaperDetail = async () => {
   loading.value = true;
   error.value = null;
+
   try {
     const id = Number(wallpaperId);
     if (isNaN(id)) {
@@ -245,6 +249,11 @@ const fetchWallpaperDetail = async () => {
       wallpaperService.getWallpaperTags(id),
     ]);
 
+    // 检查响应是否成功
+    if (!wallpaperResponse.success) {
+      throw new Error(wallpaperResponse.message || "获取壁纸详情失败");
+    }
+
     // 转换API数据格式以匹配组件接口
     wallpaper.value = {
       id: wallpaperResponse.data.id,
@@ -252,11 +261,11 @@ const fetchWallpaperDetail = async () => {
       width: wallpaperResponse.data.width,
       height: wallpaperResponse.data.height,
       fileSize: `${(wallpaperResponse.data.fileSize / 1024 / 1024).toFixed(2)} MB`,
-      tags: tagsResponse.data.map((tag: any) => tag.name), // 从标签接口获取标签名称
+      tags: tagsResponse.success ? tagsResponse.data.map((tag: any) => tag.name) : [], // 从标签接口获取标签名称
       uploader: {
         id: wallpaperResponse.data.uploaderId,
-        name: wallpaperResponse.data.uploaderName || "未知用户",
-        avatar: "", // API未提供头像URL，需要后端支持
+        name: wallpaperResponse.data.uploader?.username || "未知用户",
+        avatar: wallpaperResponse.data.uploader?.avatarUrl || "", // 使用后端处理后的完整头像URL
       },
       uploadDate: new Date(
         wallpaperResponse.data.createdAt,
@@ -271,8 +280,16 @@ const fetchWallpaperDetail = async () => {
     // 初始化点赞和收藏状态（如果API返回则使用，否则设为false）
     isLiked.value = wallpaperResponse.data.isLiked || false;
     isFavorited.value = wallpaperResponse.data.isFavorited || false;
-  } catch (err) {
+  } catch (err: any) {
     console.error("获取壁纸详情失败:", err);
+
+    // 静默处理请求被取消的情况，不显示错误信息
+    if (err.message === '请求已取消' || err.name === 'REQUEST_CANCELLED' || err.isCancelled) {
+      console.log('壁纸详情请求被取消，静默处理');
+      return;
+    }
+
+    // 其他错误才显示错误信息
     error.value = err instanceof Error ? err.message : "获取壁纸详情失败";
   } finally {
     loading.value = false;
@@ -385,11 +402,33 @@ const handleFavorite = async () => {
   }
 };
 
+// 处理头像加载失败
+const handleAvatarError = (event: Event) => {
+  const img = event.target as HTMLImageElement;
+  // 设置默认头像
+  img.src = '/uploads/profile-pictures/defaultAvatar.png';
+  img.onerror = null; // 防止无限循环
+};
+
 // 选择分辨率
 const selectResolution = (resolution: string) => {
   console.log("选择分辨率:", resolution);
   // 这里可以处理分辨率选择逻辑，比如显示不同分辨率的图片
 };
+
+// 组件卸载时清理所有pending请求和计时器
+onUnmounted(() => {
+  // 清理可能存在的重试计时器
+  if (detailTimeoutId.value) {
+    clearTimeout(detailTimeoutId.value);
+    detailTimeoutId.value = null;
+  }
+
+  // 重置加载状态
+  loading.value = false;
+
+  console.log('wallpaperDetail 组件卸载，清理完成');
+});
 </script>
 
 <style scoped>

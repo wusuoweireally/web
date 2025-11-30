@@ -2,29 +2,11 @@
   <div class="space-y-6">
     <!-- 页面标题和统计 -->
     <div
-      class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+      class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
     >
       <div>
         <h2 class="text-2xl font-bold">{{ title }}</h2>
         <p class="mt-1 text-gray-500">共 {{ pagination.total }} 个壁纸</p>
-      </div>
-
-      <!-- 搜索和筛选 -->
-      <div class="flex items-center gap-2">
-        <div class="form-control">
-          <div class="input-group">
-            <input
-              v-model="searchQuery"
-              type="text"
-              placeholder="搜索壁纸..."
-              class="input-bordered input input-sm"
-              @input="handleSearch"
-            />
-            <button class="btn btn-square btn-sm">
-              <i class="i-mdi-magnify"></i>
-            </button>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -175,8 +157,6 @@ const props = withDefaults(defineProps<Props>(), {
 const wallpapers = ref<WallpaperItem[]>([]);
 const loading = ref(false);
 const error = ref<string>("");
-const searchQuery = ref("");
-const searchTimeout = ref<NodeJS.Timeout>();
 
 // 分页数据
 const pagination = ref<Pagination>({
@@ -226,16 +206,12 @@ const transformWallpaperData = (data: any): WallpaperItem => {
 };
 
 // 获取数据
-const fetchData = async (page: number = 1, search: string = "") => {
+const fetchData = async (page: number = 1) => {
   try {
     loading.value = true;
     error.value = "";
 
-    const result = await props.fetchFunction(
-      page,
-      pagination.value.limit,
-      search,
-    );
+    const result = await props.fetchFunction(page, pagination.value.limit);
     console.log("result", result);
     // 转换数据格式
     wallpapers.value = result.data.map(transformWallpaperData);
@@ -250,22 +226,11 @@ const fetchData = async (page: number = 1, search: string = "") => {
 };
 
 // 搜索处理（防抖）
-const handleSearch = () => {
-  if (searchTimeout.value) {
-    clearTimeout(searchTimeout.value);
-  }
-
-  searchTimeout.value = setTimeout(() => {
-    pagination.value.page = 1;
-    fetchData(1, searchQuery.value);
-  }, 500);
-};
-
 // 分页处理
 const handlePageChange = (page: number) => {
   if (page < 1 || page > pagination.value.pages) return;
   pagination.value.page = page;
-  fetchData(page, searchQuery.value);
+  fetchData(page);
 };
 
 // 页面加载时获取数据
@@ -277,12 +242,12 @@ onMounted(() => {
 watch(
   () => pagination.value.page,
   (newPage) => {
-    fetchData(newPage, searchQuery.value);
+    fetchData(newPage);
   },
 );
 
 // 暴露方法供父组件调用
 defineExpose({
-  refresh: () => fetchData(pagination.value.page, searchQuery.value),
+  refresh: () => fetchData(pagination.value.page),
 });
 </script>

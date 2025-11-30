@@ -325,16 +325,32 @@ export const useUserStore = defineStore("user", () => {
       loading.value = true;
       clearError();
 
-      // TODO: 替换为真实的API调用
-      // const response = await userService.getUserStats();
-      // userStats.value = response.data;
+      if (!user.value) {
+        throw new Error("用户未登录");
+      }
 
-      // 模拟数据
+      const [uploadsResp, favoritesResp, likesResp] = await Promise.all([
+        userService.getUserWallpapers(1, 100),
+        userService.getUserFavorites(1, 1),
+        userService.getUserLikes(1, 1),
+      ]);
+
+      const uploadsTotal = uploadsResp?.pagination?.total ?? 0;
+      const favoritesTotal = favoritesResp?.pagination?.total ?? 0;
+      const likesTotal = likesResp?.pagination?.total ?? 0;
+      const uploadsList = Array.isArray(uploadsResp?.data)
+        ? uploadsResp.data
+        : [];
+      const likesReceived = uploadsList.reduce(
+        (sum: number, wallpaper: any) => sum + (wallpaper?.likeCount || 0),
+        0,
+      );
+
       userStats.value = {
-        uploads: 12,
-        favorites: 89,
-        likes: 45,
-        likesReceived: 256
+        uploads: uploadsTotal,
+        favorites: favoritesTotal,
+        likes: likesTotal,
+        likesReceived,
       };
 
       return userStats.value;

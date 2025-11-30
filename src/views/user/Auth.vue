@@ -1,24 +1,36 @@
 <template>
   <div
-    class="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 p-4"
+    class="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-slate-50 via-white to-slate-100 p-4"
   >
+    <!-- 装饰性背景元素 - 与首页呼应 -->
+    <div class="pointer-events-none absolute inset-0 overflow-hidden">
+      <div
+        class="absolute left-1/2 top-[-15%] h-[32rem] w-[32rem] -translate-x-1/2 rounded-full bg-purple-200/30 blur-[200px]"
+      ></div>
+      <div
+        class="absolute left-[10%] top-1/2 h-[22rem] w-[22rem] -translate-y-1/2 rounded-full bg-sky-200/20 blur-[220px]"
+      ></div>
+      <div
+        class="absolute right-[-5%] bottom-[-10%] h-[28rem] w-[28rem] rounded-full bg-pink-100/40 blur-[200px]"
+      ></div>
+    </div>
     <div
       class="card flex h-auto w-full max-w-4xl transform flex-col md:flex-row justify-between rounded-2xl border border-white/30 bg-white/95 shadow-2xl backdrop-blur-sm transition-all duration-500 hover:shadow-3xl"
     >
-      <div class="mx-auto my-1 w-full md:w-1/2 border-r-0 md:border-r border-gray-400 bg-blue-100 p-8 rounded-l-2xl">
+      <div class="mx-auto my-1 w-full md:w-1/2 border-r-0 md:border-r border-gray-200 bg-gradient-to-br from-purple-50 to-sky-50 p-8 rounded-l-2xl">
         <!-- 品牌标识 -->
         <div class="mb-8 text-center">
           <div
-            class="mx-auto h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-r from-blue-500 to-purple-600 shadow-lg flex"
+            class="mx-auto h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-r from-purple-600 to-sky-500 shadow-lg flex"
           >
             <span class="text-3xl font-bold text-white">🎨</span>
           </div>
           <h1
-            class="mb-2 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-4xl font-bold text-transparent"
+            class="mb-2 bg-gradient-to-r from-purple-600 to-sky-500 bg-clip-text text-4xl font-bold text-transparent"
           >
             随心壁纸
           </h1>
-          <p class="text-lg text-gray-600">发现属于你的视觉盛宴</p>
+          <p class="text-lg text-slate-600">发现属于你的视觉盛宴</p>
         </div>
 
         <!-- 切换标签 -->
@@ -355,6 +367,17 @@
           </div>
         </form>
       </div>
+    </div>
+
+    <!-- 返回首页链接 -->
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-10">
+      <router-link
+        to="/"
+        class="inline-flex items-center gap-2 rounded-full bg-white/80 backdrop-blur-sm px-4 py-2 text-sm text-slate-600 shadow-lg transition-all duration-300 hover:bg-white hover:shadow-xl hover:scale-105"
+      >
+        <span class="text-lg">🏠</span>
+        返回首页
+      </router-link>
     </div>
   </div>
 </template>
