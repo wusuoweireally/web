@@ -1,3 +1,17 @@
+<template>
+  <div class="app-container">
+    <!-- 条件渲染导航栏 -->
+    <transition name="navbar" appear>
+      <NavBar v-if="shouldShowNavBar" />
+    </transition>
+
+    <!-- 主要内容区域 -->
+    <main class="main-content" :class="{ 'no-navbar': !shouldShowNavBar }">
+      <RouterView />
+    </main>
+  </div>
+</template>
+
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
@@ -16,20 +30,6 @@ const shouldShowNavBar = computed(() => {
   return true
 })
 </script>
-
-<template>
-  <div class="app-container">
-    <!-- 条件渲染导航栏 -->
-    <transition name="navbar" appear>
-      <NavBar v-if="shouldShowNavBar" />
-    </transition>
-
-    <!-- 主要内容区域 -->
-    <main class="main-content" :class="{ 'no-navbar': !shouldShowNavBar }">
-      <RouterView />
-    </main>
-  </div>
-</template>
 
 <style scoped>
 .app-container {

@@ -76,6 +76,10 @@
           <i class="i-mdi-cog"></i>
           账号设置
         </router-link>
+        <router-link v-if="userStore.user?.role === 'admin'" to="/admin/dashboard" class="uc-nav-link admin-nav-link" active-class="is-active">
+          <i class="i-mdi-shield-crown"></i>
+          管理后台
+        </router-link>
       </nav>
 
       <section class="uc-content">
@@ -266,6 +270,25 @@ const fetchUserData = async () => {
   border-color: rgba(99, 102, 241, 0.45);
   background: linear-gradient(120deg, rgba(99, 102, 241, 0.15), rgba(14, 165, 233, 0.12));
   box-shadow: 0 14px 28px rgba(99, 102, 241, 0.15);
+}
+
+.uc-nav-link.admin-nav-link {
+  border-color: rgba(244, 63, 94, 0.4);
+  background: linear-gradient(120deg, rgba(244, 63, 94, 0.1), rgba(251, 113, 133, 0.08));
+  color: #be123c;
+}
+
+.uc-nav-link.admin-nav-link:hover {
+  color: #9f1239;
+  border-color: rgba(244, 63, 94, 0.6);
+  box-shadow: 0 10px 22px rgba(244, 63, 94, 0.15);
+}
+
+.uc-nav-link.admin-nav-link.is-active {
+  color: #9f1239;
+  border-color: rgba(244, 63, 94, 0.6);
+  background: linear-gradient(120deg, rgba(244, 63, 94, 0.18), rgba(251, 113, 133, 0.15));
+  box-shadow: 0 14px 28px rgba(244, 63, 94, 0.25);
 }
 
 .uc-content {

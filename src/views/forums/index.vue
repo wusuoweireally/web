@@ -3,81 +3,64 @@
     class="min-h-screen bg-gradient-to-b from-base-100 via-base-200 to-base-300"
   >
     
-    <section class="mx-auto w-full max-w-6xl px-4 py-10">
+    <section class="mx-auto w-full max-w-6xl px-4 py-8">
       <div
-        class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 p-8 text-white shadow-xl"
+        class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 p-6 text-white shadow-lg"
       >
-        <div class="space-y-3">
-          <p class="text-sm tracking-[0.4em] text-white/80 uppercase">
-            Community
+        <div class="space-y-2">
+          <p class="text-xs font-semibold tracking-[0.3em] text-white/80 uppercase">
+            壁纸社区
           </p>
-          <h1 class="text-4xl font-black">壁纸社区 · 分享灵感</h1>
-          <p class="max-w-3xl text-lg text-white/80">
-            记录创意、交流经验、寻找志同道合的伙伴，热门讨论与精选内容每日更新。
+          <h1 class="text-2xl font-bold">发现与分享</h1>
+          <p class="max-w-3xl text-sm text-white/80">
+            记录创意、交流经验、寻找灵感
           </p>
-          <div class="flex flex-wrap gap-3 pt-2">
-            <button class="btn btn-sm btn-primary" @click="handleCreatePost">
-              <i class="i-mdi-pencil-outline text-lg"></i>
-              发起讨论
-            </button>
-            <button
-              class="btn border-white/50 text-white btn-outline btn-sm hover:bg-white/10"
-              @click="handleSortChange"
-            >
-              <i class="i-mdi-fire text-lg"></i>
-              浏览热门
-            </button>
-          </div>
         </div>
-        <div
-          class="pointer-events-none absolute top-0 -right-24 h-full w-72 rotate-12 bg-white/10 blur-3xl"
-        ></div>
       </div>
     </section>
 
     <div
       class="mx-auto grid w-full max-w-6xl gap-6 px-4 pb-12 lg:grid-cols-[3fr_1fr]"
     >
-      <section class="space-y-6">
-        <div class="rounded-2xl bg-base-100/80 p-5 shadow">
+      <section class="space-y-4">
+        <div class="rounded-2xl bg-base-100/80 p-4 shadow-sm">
           <div
-            class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"
+            class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"
           >
             <div>
-              <h2 class="text-2xl font-semibold text-base-content">论坛动态</h2>
-              <p class="text-base-content/60">发现和分享壁纸相关的讨论</p>
+              <h2 class="text-xl font-semibold text-base-content">全部讨论</h2>
+              <p class="text-xs text-base-content/60">发现精彩内容</p>
             </div>
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-              <label class="input-bordered input flex items-center gap-2">
-                <i class="i-mdi-magnify"></i>
+              <label class="input-bordered input input-sm flex items-center gap-2 w-full sm:w-auto">
+                <i class="i-mdi-magnify text-base-content/60"></i>
                 <input
                   v-model="searchQuery"
                   type="text"
-                  placeholder="搜索帖子、作者或标签"
+                  placeholder="搜索帖子..."
                   class="grow"
                   @input="handleSearch"
                 />
               </label>
-              <button class="btn btn-primary" @click="handleCreatePost">
-                <i class="i-mdi-plus text-lg"></i>
-                发布帖子
+              <button class="btn btn-sm btn-primary gap-1" @click="handleCreatePost">
+                <i class="i-mdi-plus text-base"></i>
+                <span>发帖</span>
               </button>
             </div>
           </div>
         </div>
 
-        <div class="rounded-2xl bg-base-100/80 p-5 shadow">
+        <div class="rounded-2xl bg-base-100/80 p-3 shadow-sm">
           <div
-            class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+            class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
           >
-            <div class="flex flex-wrap gap-2">
+            <div class="tabs tabs-boxed bg-transparent gap-1 p-1">
               <button
                 v-for="category in forumStore.postCategories"
                 :key="category.value"
-                class="btn rounded-full btn-sm"
+                class="tab tab-sm"
                 :class="{
-                  'btn-primary': forumStore.filters.category === category.value,
-                  'btn-outline': forumStore.filters.category !== category.value,
+                  'tab-active': forumStore.filters.category === category.value,
                 }"
                 @click="handleCategoryChange(category.value)"
               >
@@ -87,22 +70,13 @@
             <div class="flex gap-2">
               <select
                 v-model="forumStore.filters.sortBy"
-                class="select-bordered select select-sm"
+                class="select-bordered select select-sm min-w-[120px]"
                 @change="handleSortChange"
               >
-                <option value="createdAt">最新发布</option>
-                <option value="viewCount">浏览最多</option>
-                <option value="likeCount">点赞最多</option>
-                <option value="commentCount">评论最多</option>
-                <option value="popular">热门推荐</option>
-              </select>
-              <select
-                v-model="forumStore.filters.sortOrder"
-                class="select-bordered select select-sm"
-                @change="handleSortChange"
-              >
-                <option value="DESC">降序</option>
-                <option value="ASC">升序</option>
+                <option value="createdAt">最新</option>
+                <option value="viewCount">最热</option>
+                <option value="likeCount">点赞</option>
+                <option value="commentCount">评论</option>
               </select>
             </div>
           </div>
@@ -207,26 +181,42 @@
         </div>
       </section>
 
-      <aside class="space-y-6">
-        <div class="rounded-2xl bg-base-100/80 p-5 shadow">
-          <h3 class="text-lg font-semibold text-base-content">热门帖子</h3>
-          <ul class="mt-3 space-y-4">
+      <aside class="space-y-4">
+        <div class="rounded-2xl bg-base-100/80 p-4 shadow-sm border border-base-200/50">
+          <div class="flex items-center gap-2 mb-3">
+            <i class="i-mdi-fire text-primary"></i>
+            <h3 class="text-sm font-semibold text-base-content">热门帖子</h3>
+          </div>
+          <ul class="space-y-3">
             <li
-              v-for="post in forumStore.popularPosts"
+              v-for="(post, index) in forumStore.popularPosts"
               :key="`popular-${post.id}`"
-              class="group cursor-pointer rounded-xl border border-base-200 p-3 transition hover:border-primary/40 hover:bg-base-200/40"
+              class="group cursor-pointer rounded-xl p-3 transition hover:bg-base-200/50"
               @click="$router.push(`/forums/post/${post.id}`)"
             >
-              <p
-                class="font-semibold text-base-content group-hover:text-primary"
-              >
-                {{ post.title }}
-              </p>
-              <div
-                class="mt-1 flex items-center gap-3 text-sm text-base-content/70"
-              >
-                <span>👁 {{ post.viewCount }}</span>
-                <span>👍 {{ post.likeCount }}</span>
+              <div class="flex items-start gap-3">
+                <span class="text-xs font-bold text-primary/60 w-4 flex-shrink-0 mt-0.5">
+                  {{ index + 1 }}
+                </span>
+                <div class="flex-1 min-w-0">
+                  <p
+                    class="text-sm font-medium text-base-content group-hover:text-primary line-clamp-2 transition-colors"
+                  >
+                    {{ post.title }}
+                  </p>
+                  <div
+                    class="mt-1.5 flex items-center gap-3 text-xs text-base-content/50"
+                  >
+                    <div class="flex items-center gap-1">
+                      <i class="i-mdi-eye text-xs"></i>
+                      <span>{{ formatNumber(post.viewCount) }}</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                      <i class="i-mdi-heart text-xs"></i>
+                      <span>{{ formatNumber(post.likeCount) }}</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </li>
           </ul>
@@ -332,7 +322,7 @@ const handleSearch = () => {
 
 const handleCategoryChange = (category: string) => {
   const newCategory = forumStore.filters.category === category ? "" : category;
-  forumStore.updateFilters({ category: newCategory as any });
+  forumStore.updateFilters({ category: (newCategory as any) || "" });
   fetchPosts(true);
 };
 
@@ -345,6 +335,15 @@ const goToPage = (page: number) => {
     forumStore.setPostsPagination({ currentPage: page });
     fetchPosts();
   }
+};
+
+const formatNumber = (num: number) => {
+  if (num >= 10000) {
+    return (num / 10000).toFixed(1) + 'w';
+  } else if (num >= 1000) {
+    return (num / 1000).toFixed(1) + 'k';
+  }
+  return num.toString();
 };
 
 const handleCreatePost = () => {
@@ -441,7 +440,3 @@ watch(
   },
 );
 </script>
-
-<style scoped>
-/* 论坛页面样式已优化，移除了不必要的统计卡片样式 */
-</style>

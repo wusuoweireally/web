@@ -159,10 +159,12 @@ const fetchWallpapers = async (isRetry: boolean = false) => {
       aspectRatio = width / height;
     }
 
+    const tagKeyword = filters.value.search.trim() || undefined;
+
     const response = await wallpaperService.getWallpapers({
       page: currentPage.value,
       limit: pageSize,
-      search: filters.value.search || undefined,
+      tagKeyword,
       sortBy: sortConfig.sortBy,
       sortOrder: sortConfig.sortOrder,
       category: filters.value.category
@@ -173,7 +175,6 @@ const fetchWallpapers = async (isRetry: boolean = false) => {
       maxWidth,
       minHeight,
       maxHeight,
-      tags: [],
     });
 
     // API拦截后直接返回 response.data，格式: { success: boolean, data: Wallpaper[], pagination: {...} }

@@ -1,205 +1,183 @@
 <template>
   <div
-    class="card bg-base-100 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer"
+    class="group rounded-2xl bg-base-100/90 border border-base-200/50 hover:border-primary/20 hover:shadow-md transition-all duration-200 cursor-pointer overflow-hidden"
     @click="handlePostClick"
   >
-    <!-- 帖子头部：分类和置顶状态 -->
-    <div class="card-body p-4 pb-2">
-      <div class="flex items-center justify-between mb-2">
-        <!-- 分类标签 -->
-        <div class="flex items-center gap-2">
+    <div class="p-5">
+      <!-- 帖子头部：分类、置顶/精华和发布时间 -->
+      <div class="flex items-start justify-between mb-3">
+        <div class="flex items-center gap-2 flex-wrap">
           <span
-            :class="`badge badge-${forumStore.categoryColor(post.category)} badge-sm`"
+            :class="`badge badge-sm ${forumStore.categoryColor(post.category)} badge-outline`"
           >
             {{ forumStore.categoryLabel(post.category) }}
           </span>
-          <div class="flex items-center gap-1">
-            <!-- 置顶标识 -->
-            <span
-              v-if="post.isPinned"
-              class="badge badge-warning badge-xs"
-            >
-              📌 置顶
-            </span>
-            <!-- 精华标识 -->
-            <span
-              v-if="post.isFeatured"
-              class="badge badge-primary badge-xs"
-            >
-              ⭐ 精华
-            </span>
-          </div>
+          <span
+            v-if="post.isPinned"
+            class="badge badge-sm badge-warning/80 badge-outline"
+          >
+            <i class="i-mdi-pin text-xs mr-1"></i>
+            置顶
+          </span>
+          <span
+            v-if="post.isFeatured"
+            class="badge badge-sm badge-primary/80 badge-outline"
+          >
+            <i class="i-mdi-star text-xs mr-1"></i>
+            精华
+          </span>
         </div>
-
-        <!-- 发布时间 -->
-        <div class="text-xs text-gray-500">
+        <div class="text-xs text-base-content/60">
           {{ formatTime(post.createdAt) }}
         </div>
       </div>
 
       <!-- 帖子标题 -->
-      <h3 class="card-title text-lg font-semibold mb-2 line-clamp-2">
+      <h3 class="text-lg font-semibold mb-2 line-clamp-2 group-hover:text-primary transition-colors">
         {{ post.title }}
       </h3>
 
       <!-- 帖子摘要 -->
       <p
         v-if="post.summary"
-        class="text-sm text-gray-600 mb-3 line-clamp-2"
+        class="text-sm text-base-content/70 mb-3 line-clamp-2"
       >
         {{ post.summary }}
       </p>
-
-      <!-- 帖子内容预览（如果没有摘要） -->
       <p
         v-else
-        class="text-sm text-gray-600 mb-3 line-clamp-2"
+        class="text-sm text-base-content/70 mb-3 line-clamp-2"
         v-html="stripHtml(post.content)"
       ></p>
 
       <!-- 标签 -->
       <div
         v-if="post.tags"
-        class="flex flex-wrap gap-1 mb-3"
+        class="flex flex-wrap gap-1.5 mb-3"
       >
         <span
           v-for="tag in post.tags.split(',').slice(0, 3)"
           :key="tag.trim()"
-          class="badge badge-outline badge-xs"
+          class="badge badge-ghost badge-xs text-xs"
         >
           {{ tag.trim() }}
         </span>
         <span
           v-if="post.tags.split(',').length > 3"
-          class="badge badge-ghost badge-xs"
+          class="badge badge-ghost badge-xs text-xs"
         >
           +{{ post.tags.split(',').length - 3 }}
         </span>
       </div>
 
-      <!-- 帖子底部：作者信息和统计 -->
-      <div class="flex items-center justify-between pt-2 border-t border-base-200">
+      <!-- 帖子底部：作者和统计信息 -->
+      <div class="flex items-center justify-between pt-3 mt-3 border-t border-base-200/60">
         <!-- 作者信息 -->
         <div class="flex items-center gap-2">
-          <div class="avatar avatar-sm">
+          <div class="avatar avatar-xs">
             <div
               v-if="authorAvatar"
-              class="w-8 h-8 rounded-full overflow-hidden border border-base-200 bg-base-100"
+              class="w-7 h-7 rounded-full overflow-hidden border border-base-200 bg-base-100"
             >
               <img :src="authorAvatar" :alt="post.author?.username || '用户头像'" class="h-full w-full object-cover" />
             </div>
             <div
               v-else
-              class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center"
+              class="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center"
             >
               <span class="text-xs font-semibold text-primary">
                 {{ post.author?.username?.charAt(0)?.toUpperCase() || 'U' }}
               </span>
             </div>
           </div>
-          <span class="text-xs text-gray-600">
-            {{ post.author?.username || '未知用户' }}
+          <span class="text-xs text-base-content/70">
+            {{ post.author?.username || '匿名用户' }}
           </span>
         </div>
 
-        <!-- 统计信息 -->
-        <div class="flex items-center gap-3 text-xs text-gray-500">
+        <!-- 统计信息和操作 -->
+        <div class="flex items-center gap-4">
           <!-- 浏览数 -->
-          <div class="flex items-center gap-1">
-            <span class="text-blue-500">👁</span>
+          <div class="flex items-center gap-1 text-xs text-base-content/50">
+            <i class="i-mdi-eye text-sm"></i>
             <span>{{ formatNumber(post.viewCount) }}</span>
           </div>
 
           <!-- 点赞数 -->
-          <div class="flex items-center gap-1">
-            <span
-              :class="post.isLiked ? 'text-green-500' : 'text-gray-400'"
-            >
-              👍
-            </span>
+          <button
+            class="flex items-center gap-1 text-xs transition-colors"
+            :class="post.isLiked ? 'text-primary' : 'text-base-content/50 hover:text-primary'"
+            @click.stop="handleLike"
+            :disabled="loading"
+          >
+            <i class="i-mdi-heart text-sm"></i>
             <span>{{ formatNumber(post.likeCount) }}</span>
-          </div>
+          </button>
 
           <!-- 评论数 -->
-          <div class="flex items-center gap-1">
-            <span class="text-orange-500">💬</span>
+          <button
+            class="flex items-center gap-1 text-xs text-base-content/50 hover:text-primary transition-colors"
+            @click.stop="handleComment"
+          >
+            <i class="i-mdi-comment-outline text-sm"></i>
             <span>{{ formatNumber(post.commentCount) }}</span>
+          </button>
+
+          <!-- 分享 -->
+          <button
+            class="btn btn-xs btn-ghost btn-circle text-base-content/50 hover:text-primary"
+            @click.stop="handleShare"
+          >
+            <i class="i-mdi-share-variant text-sm"></i>
+          </button>
+
+          <!-- 作者操作菜单 -->
+          <div
+            v-if="isAuthor"
+            class="dropdown dropdown-end"
+            @click.stop
+          >
+            <label
+              tabindex="0"
+              class="btn btn-xs btn-ghost btn-circle text-base-content/50 hover:text-primary"
+            >
+              <i class="i-mdi-dots-horizontal text-sm"></i>
+            </label>
+            <ul
+              tabindex="0"
+              class="dropdown-content menu p-1.5 shadow-lg bg-base-100 rounded-box w-36 border border-base-200"
+            >
+              <li>
+                <a
+                  class="text-sm"
+                  @click="handleEdit"
+                >
+                  <i class="i-mdi-pencil-outline"></i>
+                  编辑
+                </a>
+              </li>
+              <li>
+                <a
+                  class="text-sm text-error"
+                  @click="handleDelete"
+                >
+                  <i class="i-mdi-delete-outline"></i>
+                  删除
+                </a>
+              </li>
+            </ul>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- 帖子操作按钮 -->
-    <div
-      v-if="showActions"
-      class="card-actions justify-between items-center p-4 pt-0 gap-2"
-      @click.stop
-    >
-      <!-- 点赞按钮 -->
-      <button
-        class="btn btn-sm btn-ghost"
-        :class="{ 'text-green-500': post.isLiked }"
-        @click="handleLike"
-        :disabled="loading"
-      >
-        <span :class="post.isLiked ? 'text-green-500' : 'text-gray-400'">
-          {{ post.isLiked ? '👍' : '👍' }}
-        </span>
-        {{ formatNumber(post.likeCount) }}
-      </button>
-
-      <!-- 评论按钮 -->
-      <button
-        class="btn btn-sm btn-ghost text-orange-500"
-        @click="handleComment"
-      >
-        💬 {{ formatNumber(post.commentCount) }}
-      </button>
-
-      <!-- 分享按钮 -->
-      <button
-        class="btn btn-sm btn-ghost"
-        @click="handleShare"
-      >
-        📤 分享
-      </button>
-
-      <!-- 作者操作 -->
+      <!-- 最后评论信息 -->
       <div
-        v-if="isAuthor"
-        class="dropdown dropdown-end"
+        v-if="post.lastCommentAt"
+        class="flex items-center gap-1 mt-2 text-xs text-base-content/40"
       >
-        <label
-          tabindex="0"
-          class="btn btn-sm btn-ghost btn-circle"
-        >
-          ⋮
-        </label>
-        <ul
-          tabindex="0"
-          class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-32"
-        >
-          <li>
-            <a @click="handleEdit">编辑</a>
-          </li>
-          <li>
-            <a
-              class="text-error"
-              @click="handleDelete"
-            >
-              删除
-            </a>
-          </li>
-        </ul>
+        <i class="i-mdi-clock-outline text-xs"></i>
+        <span>最后回复于 {{ formatTime(post.lastCommentAt) }}</span>
       </div>
-    </div>
-
-    <!-- 最后评论信息 -->
-    <div
-      v-if="post.lastCommentAt"
-      class="px-4 pb-3 text-xs text-gray-500"
-    >
-      最后回复：{{ formatTime(post.lastCommentAt) }}
     </div>
   </div>
 </template>

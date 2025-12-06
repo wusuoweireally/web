@@ -1,6 +1,6 @@
-@import "tailwindcss";
-@plugin "daisyui";
-@plugin "@tailwindcss/typography";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* 自定义 prose 样式用于富文本内容 */
 .prose {

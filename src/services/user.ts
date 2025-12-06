@@ -2,6 +2,14 @@ import api from "@/config/api";
 import type { ApiResponse } from "@/config/api";
 
 /**
+ * 用户角色枚举
+ */
+export enum UserRole {
+  USER = 'user',
+  ADMIN = 'admin',
+}
+
+/**
  * 用户信息接口
  */
 export interface User {
@@ -11,6 +19,7 @@ export interface User {
   avatarUrl: string;
   bio: string;
   status: number;
+  role: UserRole;
   createdAt: string;
   updatedAt: string;
 }
@@ -55,6 +64,11 @@ export interface PaginatedResponse<T> {
   };
 }
 
+export interface LoginResponse {
+  user: User;
+  token: string;
+}
+
 /**
  * 用户服务类
  */
@@ -82,7 +96,7 @@ class UserService {
   async login(loginDto: LoginDto) {
     try {
       const response = await api.post("/users/login", loginDto);
-      return response as unknown as ApiResponse<User>;
+      return response as unknown as ApiResponse<LoginResponse>;
     } catch (error) {
       console.error("登录失败:", error);
       throw error;
@@ -94,7 +108,11 @@ class UserService {
    */
   async logout() {
     try {
-      const response = await api.post("/users/logout");
+      const response = await api.post(
+        "/users/logout",
+        undefined,
+        { skipAuthExpiredHandler: true },
+      );
       return response as unknown as ApiResponse;
     } catch (error) {
       console.error("登出失败:", error);

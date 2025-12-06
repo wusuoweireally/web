@@ -630,7 +630,7 @@ const copyLink = async () => {
   try {
     await navigator.clipboard.writeText(window.location.href);
     alert("链接已复制到剪贴板");
-  } catch (err) {
+  } catch (_err) {
     alert("复制失败，请手动复制链接");
   }
 };

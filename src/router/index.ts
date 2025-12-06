@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import type { RouteRecordRaw } from "vue-router";
 import "./types"; // 导入路由类型扩展
 import { useUserStore } from "@/stores";
+import { storeToRefs } from "pinia";
 
 // 路由配置
 const routes: RouteRecordRaw[] = [
@@ -147,6 +148,28 @@ const routes: RouteRecordRaw[] = [
       },
     ],
   },
+  // 标签相关路由
+  {
+    path: "/tags",
+    name: "Tags",
+    component: () => import("@/views/Tags.vue"),
+    meta: {
+      title: "标签库",
+      requiresAuth: false,
+      showNavBar: true,
+    },
+  },
+  {
+    path: "/tag/:id",
+    name: "TagDetail",
+    component: () => import("@/views/TagDetail.vue"),
+    meta: {
+      title: "标签详情",
+      requiresAuth: false,
+      showNavBar: true,
+    },
+  },
+
   // 论坛相关路由
   {
     path: "/forums",
@@ -187,6 +210,77 @@ const routes: RouteRecordRaw[] = [
       requiresAuth: true,
       showNavBar: true,
     },
+  },
+
+  // 管理后台路由
+  {
+    path: "/admin",
+    name: "AdminLayout",
+    component: () => import("@/views/admin/AdminLayout.vue"),
+    redirect: "/admin/dashboard",
+    meta: {
+      title: "管理后台",
+      requiresAuth: true,
+      roles: ["ADMIN"],
+      showNavBar: false,
+    },
+    children: [
+      {
+        path: "dashboard",
+        name: "AdminDashboard",
+        component: () => import("@/views/admin/Dashboard.vue"),
+        meta: {
+          title: "仪表盘",
+          requiresAuth: true,
+          roles: ["ADMIN"],
+          showNavBar: false,
+        },
+      },
+      {
+        path: "users",
+        name: "AdminUsers",
+        component: () => import("@/views/admin/Users.vue"),
+        meta: {
+          title: "用户管理",
+          requiresAuth: true,
+          roles: ["ADMIN"],
+          showNavBar: false,
+        },
+      },
+      {
+        path: "wallpapers",
+        name: "AdminWallpapers",
+        component: () => import("@/views/admin/Wallpapers.vue"),
+        meta: {
+          title: "壁纸管理",
+          requiresAuth: true,
+          roles: ["ADMIN"],
+          showNavBar: false,
+        },
+      },
+      {
+        path: "reports",
+        name: "AdminReports",
+        component: () => import("@/views/admin/Reports.vue"),
+        meta: {
+          title: "举报管理",
+          requiresAuth: true,
+          roles: ["ADMIN"],
+          showNavBar: false,
+        },
+      },
+      {
+        path: "tags",
+        name: "AdminTags",
+        component: () => import("@/views/admin/Tags.vue"),
+        meta: {
+          title: "标签管理",
+          requiresAuth: true,
+          roles: ["ADMIN"],
+          showNavBar: false,
+        },
+      },
+    ],
   },
 
   // 404 页面
@@ -247,10 +341,10 @@ router.beforeEach(async (to, _from, next) => {
 
   // 检查登录状态 - 使用Pinia store中的用户状态来判断登录状态
   const userStore = useUserStore();
-  const isLoggedIn = userStore.isLoggedIn;
+  const { isLoggedIn, currentUser } = storeToRefs(userStore);
 
   // 需要登录的路由
-  if (to.meta.requiresAuth && !isLoggedIn) {
+  if (to.meta.requiresAuth && !isLoggedIn.value) {
     // 避免在登录页之间无限重定向
     if (to.name === "Login" || to.name === "Register") {
       next();
@@ -265,7 +359,7 @@ router.beforeEach(async (to, _from, next) => {
   }
 
   // 已登录用户访问登录/注册页面，重定向到首页
-  if (to.meta.hideForAuth && isLoggedIn) {
+  if (to.meta.hideForAuth && isLoggedIn.value) {
     // 避免在首页之间无限重定向
     if (to.name === "Home") {
       next();
@@ -274,6 +368,17 @@ router.beforeEach(async (to, _from, next) => {
 
     next({ name: "Home" });
     return;
+  }
+
+  // 检查管理员权限
+  if (to.meta.roles && isLoggedIn.value) {
+    const requiredRoles = to.meta.roles as string[];
+    const userRole = currentUser.value?.role;
+
+    if (requiredRoles.includes('ADMIN') && userRole !== 'admin') {
+      next({ name: "Home" });
+      return;
+    }
   }
 
   next();

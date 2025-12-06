@@ -11,6 +11,7 @@ export interface WallpaperQueryParams {
   sortBy?: string;
   sortOrder?: "ASC" | "DESC";
   tags?: string[];
+  tagKeyword?: string;
   minWidth?: number;
   maxWidth?: number;
   minHeight?: number;
@@ -163,6 +164,10 @@ class WallpaperService {
 
       if (params.tags && params.tags.length > 0) {
         queryParams.tags = params.tags;
+      }
+
+      if (params.tagKeyword) {
+        queryParams.tagKeyword = params.tagKeyword;
       }
 
       const response = await api.get("/wallpapers", {

@@ -5,9 +5,11 @@ import userService, {
   type LoginDto,
   type RegisterDto,
   type UpdateUserDto,
+  type LoginResponse,
 } from "@/services/user";
 
 // ==================== localStorage 工具函数 ====================
+// 注意：认证 token 通过 HttpOnly Cookie 自动处理，前端只需保存用户信息
 
 const STORAGE_KEY = "currentUser";
 
@@ -69,6 +71,8 @@ export const useUserStore = defineStore("user", () => {
   // ==================== 计算属性 ====================
   const isLoggedIn = computed(() => !!user.value);
 
+  const currentUser = computed(() => user.value);
+
   const userAvatar = computed(() => {
     if (!user.value?.avatarUrl || user.value.avatarUrl === "defaultAvatar.webp")
       return "/api/uploads/profile-pictures/defaultAvatar.png";
@@ -123,6 +127,7 @@ export const useUserStore = defineStore("user", () => {
 
   /**
    * 用户登录
+   * Cookie 由后端自动设置，前端只需保存用户信息
    */
   const login = async (loginData: LoginDto) => {
     try {
@@ -132,7 +137,9 @@ export const useUserStore = defineStore("user", () => {
       const response = await userService.login(loginData);
 
       if (response.success && response.data) {
-        setUser(response.data);
+        const { user: loginUser } = response.data as LoginResponse;
+        // Cookie 由后端自动设置，无需前端处理 token
+        setUser(loginUser);
         return response;
       } else {
         throw new Error(response.message || "登录失败");
@@ -168,6 +175,7 @@ export const useUserStore = defineStore("user", () => {
 
   /**
    * 用户登出
+   * Cookie 由后端清除，前端只需清除用户信息
    */
   const logout = async () => {
     try {
@@ -176,6 +184,7 @@ export const useUserStore = defineStore("user", () => {
     } catch (err) {
       console.warn("登出请求失败:", err);
     } finally {
+      // 无论登出请求是否成功，都清除本地用户信息
       clearUser();
       loading.value = false;
     }
@@ -183,21 +192,23 @@ export const useUserStore = defineStore("user", () => {
 
   /**
    * 初始化用户认证状态（应用启动时调用）
+   * Cookie 会自动随请求发送，只需从 localStorage 恢复用户信息并验证
    */
   const initializeAuth = async () => {
     console.log("🔐 开始初始化用户认证状态...");
 
-    // 先从 localStorage 恢复用户信息
+    // 从 localStorage 恢复用户信息
     const savedUser = getUserFromStorage();
+
     if (!savedUser) {
-      console.log("ℹ️  localStorage中没有保存的用户信息");
+      console.log("ℹ️  没有检测到本地登录信息，跳过认证验证");
       return;
     }
 
     user.value = savedUser;
     console.log("✅ 从localStorage恢复用户信息:", savedUser.username);
 
-    // 验证用户状态是否仍然有效
+    // 验证用户状态是否仍然有效（Cookie 会自动发送）
     try {
       console.log("🔄 验证用户认证状态...");
       const result = await fetchCurrentUser();
@@ -207,14 +218,8 @@ export const useUserStore = defineStore("user", () => {
         console.log("⚠️  用户认证验证返回空结果");
       }
     } catch (error: any) {
-      // 401错误表示token过期，保持显示用户信息
-      if (error.response?.status === 401) {
-        console.log("⚠️  用户token已过期，需要重新登录");
-        console.log("ℹ️  保持显示用户信息，但功能受限");
-      } else {
-        console.warn("用户认证验证失败:", error);
-        clearUser();
-      }
+      console.warn("用户认证验证失败，清除本地登录态:", error);
+      clearUser();
     }
 
     console.log("🔐 用户认证状态初始化完成");
@@ -240,13 +245,11 @@ export const useUserStore = defineStore("user", () => {
         return null;
       }
     } catch (err: any) {
-      // 只在非401错误时清除用户信息
-      if (err.response?.status !== 401) {
-        clearUser();
-        const errorMessage =
-          err.response?.data?.message || err.message || "获取用户信息失败";
-        setError(errorMessage);
-      }
+      // 认证失败时清除本地用户信息
+      clearUser();
+      const errorMessage =
+        err.response?.data?.message || err.message || "获取用户信息失败";
+      setError(errorMessage);
       return null;
     } finally {
       loading.value = false;
@@ -497,6 +500,7 @@ export const useUserStore = defineStore("user", () => {
 
     // 计算属性
     isLoggedIn,
+    currentUser,
     userAvatar,
 
     // 用户状态管理

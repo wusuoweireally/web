@@ -4,9 +4,13 @@ import axios, {
   type InternalAxiosRequestConfig,
 } from "axios";
 
+const AUTH_EXPIRED_EVENT = "auth-expired";
+let isDispatchingAuthExpired = false;
+
 // 扩展Axios请求配置类型
 interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
   requestId?: string;
+  skipAuthExpiredHandler?: boolean;
 }
 
 // 定义 API 响应的数据格式
@@ -23,7 +27,7 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  withCredentials: true,
+  withCredentials: true, // 依赖 HttpOnly Cookie 自动携带认证信息
 });
 
 // 请求取消令牌管理
@@ -52,7 +56,7 @@ api.interceptors.request.use(
         bodyData = typeof config.data === 'string'
           ? config.data
           : JSON.stringify(config.data);
-      } catch (e) {
+      } catch {
         bodyData = String(config.data);
       }
     }
@@ -150,13 +154,32 @@ api.interceptors.response.use(
     if (error.response) {
       const status = error.response.status;
       const message = error.response.data?.message || "";
+      const requestConfig = error.config as CustomAxiosRequestConfig | undefined;
 
       switch (status) {
         case 401:
           errorMessage = "登录已过期，请重新登录";
           console.error("认证失败:", message);
-          // 触发登出或跳转到登录页
-          // window.location.href = '/login';
+          // 触发统一的登录过期处理（由应用层监听）
+          if (
+            typeof window !== "undefined" &&
+            !isDispatchingAuthExpired &&
+            !requestConfig?.skipAuthExpiredHandler
+          ) {
+            isDispatchingAuthExpired = true;
+            window.dispatchEvent(
+              new CustomEvent(AUTH_EXPIRED_EVENT, {
+                detail: {
+                  source: requestConfig?.url,
+                  timestamp: Date.now(),
+                },
+              }),
+            );
+            // 允许后续新的401再次触发
+            setTimeout(() => {
+              isDispatchingAuthExpired = false;
+            }, 300);
+          }
           break;
         case 403:
           errorMessage = "您没有权限执行此操作";
@@ -184,9 +207,10 @@ api.interceptors.response.use(
         console.error("错误详情:", error.response.data);
       }
 
-      // 给用户友好的提示
-      // 使用 alert 简单实现，实际项目中可以使用 UI 组件库的通知组件
-      alert(errorMessage);
+      // 401 登录过期交由全局处理，其余错误给出提示
+      if (status !== 401 || requestConfig?.skipAuthExpiredHandler) {
+        alert(errorMessage);
+      }
     } else if (error.request) {
       errorMessage = "网络连接失败，请检查网络";
       console.error("网络错误:", error.request);
