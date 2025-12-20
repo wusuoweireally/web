@@ -58,6 +58,7 @@ export interface PostCategory {
   value: 'tech_discussion' | 'experience_sharing' | 'q_a' | 'resource_sharing';
   label: string;
   color: string;
+  emoji?: string;
 }
 
 export interface PaginationData {
@@ -112,10 +113,10 @@ export const useForumStore = defineStore('forum', () => {
 
   // 帖子分类配置
   const postCategories = ref<PostCategory[]>([
-    { value: 'tech_discussion', label: '技术讨论', color: 'blue' },
-    { value: 'experience_sharing', label: '经验分享', color: 'green' },
-    { value: 'q_a', label: '问答求助', color: 'yellow' },
-    { value: 'resource_sharing', label: '资源分享', color: 'purple' },
+    { value: 'tech_discussion', label: '技术讨论', color: 'blue', emoji: '💡' },
+    { value: 'experience_sharing', label: '经验分享', color: 'green', emoji: '✨' },
+    { value: 'q_a', label: '问答求助', color: 'yellow', emoji: '❓' },
+    { value: 'resource_sharing', label: '资源分享', color: 'purple', emoji: '🎁' },
   ]);
 
   // 计算属性

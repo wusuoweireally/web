@@ -136,8 +136,9 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, computed, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { storeToRefs } from 'pinia'
 import { useUserStore } from '@/stores/index'
 
 const userStore = useUserStore()
@@ -145,9 +146,7 @@ const route = useRoute()
 const showDropdown = ref(false)
 
 // 计算属性
-const isLoggedIn = computed(() => userStore.isLoggedIn)
-const user = computed(() => userStore.user)
-const userAvatar = computed(() => userStore.userAvatar)
+const { isLoggedIn, user, userAvatar } = storeToRefs(userStore)
 
 const navItems = [
   {

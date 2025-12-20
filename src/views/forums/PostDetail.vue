@@ -1,49 +1,36 @@
 <template>
-  <div class="min-h-screen bg-base-200 p-4 lg:p-6">
-    <div class="mx-auto max-w-4xl">
-      <!-- 加载状态 -->
+  <div class="relative min-h-screen bg-[#f5f6fa]">
+    <div class="pointer-events-none absolute inset-0 overflow-hidden">
+      <div class="absolute -left-24 top-6 h-72 w-72 rounded-full bg-[#dceafe] blur-3xl opacity-60"></div>
+      <div class="absolute right-[-80px] top-16 h-80 w-80 rounded-full bg-[#fde2c5] blur-3xl opacity-70"></div>
+      <div class="absolute left-1/3 top-52 h-56 w-56 rounded-full bg-[#e8e7ff] blur-3xl opacity-60"></div>
+    </div>
+
+    <div class="relative mx-auto max-w-5xl px-4 py-10">
       <div v-if="loading" class="flex min-h-[50vh] items-center justify-center">
-        <div class="loading loading-lg loading-spinner"></div>
+        <div class="flex flex-col items-center gap-3 text-slate-500">
+          <div class="loading loading-lg loading-spinner text-primary"></div>
+          <p class="text-sm">正在加载帖子...</p>
+        </div>
       </div>
 
-      <!-- 错误状态 -->
       <div v-else-if="error" class="py-12 text-center">
-        <div class="mx-auto mb-4 alert max-w-md alert-error">
-          <i class="i-mdi-alert-circle"></i>
+        <div class="mx-auto mb-4 max-w-md rounded-2xl border border-error/30 bg-error/5 px-4 py-3 text-error shadow">
+          <i class="i-mdi-alert-circle mr-2"></i>
           <span>{{ error }}</span>
         </div>
         <button @click="router.back()" class="btn btn-primary">返回</button>
       </div>
 
-      <!-- 帖子内容 -->
       <template v-else-if="post">
-        <!-- 顶部导航 -->
-        <div class="mb-6 flex items-center justify-between">
-          <button class="btn btn-ghost" @click="router.back()">
+        <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+          <button class="btn btn-ghost btn-sm" @click="router.back()">
             <i class="i-mdi-arrow-left text-lg"></i>
-            返回
+            返回列表
           </button>
-
-          <div class="flex gap-2">
-            <!-- 分享按钮 -->
-            <div class="dropdown dropdown-end">
-              <label tabindex="0" class="btn btn-ghost">
-                <i class="i-mdi-share text-lg"></i>
-                分享
-              </label>
-              <ul
-                tabindex="0"
-                class="dropdown-content menu w-32 rounded-box bg-base-100 p-2 shadow"
-              >
-                <li><a @click="shareToWeChat">微信</a></li>
-                <li><a @click="shareToWeibo">微博</a></li>
-                <li><a @click="copyLink">复制链接</a></li>
-              </ul>
-            </div>
-
-            <!-- 举报按钮 -->
+          <div class="flex flex-wrap gap-2">
             <button
-              class="btn btn-ghost"
+              class="btn btn-ghost btn-sm"
               @click="openReportModal"
               :disabled="!userStore.isLoggedIn"
               title="举报帖子"
@@ -51,206 +38,272 @@
               <i class="i-mdi-flag text-lg"></i>
               举报
             </button>
-          </div>
-        </div>
-
-        <!-- 帖子主体 -->
-        <div class="card mb-6 bg-base-100 shadow-md">
-          <div class="card-body">
-            <!-- 帖子头部信息 -->
-            <div class="mb-6 flex items-start gap-4">
-              <!-- 用户头像 -->
-              <div class="avatar">
-                <div
-                  v-if="authorAvatar"
-                  class="flex h-12 w-12 items-center justify-center rounded-full overflow-hidden border border-base-200 bg-base-100"
-                >
-                  <img
-                    :src="authorAvatar"
-                    :alt="post.author?.username || '用户头像'"
-                    class="h-full w-full object-cover"
-                  />
-                </div>
-                <div
-                  v-else
-                  class="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10"
-                >
-                  <span class="text-lg font-semibold text-primary">
-                    {{ post.author?.username?.charAt(0)?.toUpperCase() || "U" }}
-                  </span>
-                </div>
-              </div>
-
-              <!-- 用户信息 -->
-              <div class="flex-1">
-                <div class="mb-2 flex items-center gap-3">
-                  <h3 class="font-semibold">
-                    {{ post.author?.username || "未知用户" }}
-                  </h3>
-                  <span class="badge badge-outline">{{
-                    getCategoryName(post.category)
-                  }}</span>
-                  <span class="text-sm text-gray-500">{{
-                    formatTime(post.createdAt)
-                  }}</span>
-                  <!-- 编辑标识 -->
-                  <span
-                    v-if="post.updatedAt && post.updatedAt !== post.createdAt"
-                    class="text-xs text-gray-400"
-                  >
-                    (已编辑)
-                  </span>
-                </div>
-
-                <!-- 标签 -->
-                <div v-if="post.tags" class="mb-3 flex flex-wrap gap-2">
-                  <span
-                    v-for="tag in getTagList(post.tags)"
-                    :key="tag"
-                    class="badge badge-outline badge-sm badge-primary"
-                  >
-                    {{ tag }}
-                  </span>
-                </div>
-              </div>
-
-              <!-- 作者操作 -->
-              <div v-if="isAuthor" class="dropdown dropdown-end">
-                <label tabindex="0" class="btn btn-circle btn-ghost btn-sm">
-                  <i class="i-mdi-dots-horizontal"></i>
-                </label>
-                <ul
-                  tabindex="0"
-                  class="dropdown-content menu w-32 rounded-box bg-base-100 p-2 shadow"
-                >
-                  <li><a @click="editPost">编辑</a></li>
-                  <li><a class="text-error" @click="deletePost">删除</a></li>
-                </ul>
-              </div>
-            </div>
-
-            <!-- 帖子标题和内容 -->
-            <h1 class="mb-4 text-2xl font-bold lg:text-3xl">
-              {{ post.title }}
-            </h1>
-
-            <!-- 帖子摘要 -->
-            <p v-if="post.summary" class="mb-4 text-gray-600 italic">
-              {{ post.summary }}
-            </p>
-
-            <!-- 帖子内容 -->
-            <div
-              class="prose mb-6 max-w-none text-base-content"
-              v-html="post.content"
-            ></div>
-
-            <!-- 帖子统计信息 -->
-            <div
-              class="flex items-center justify-between border-t border-base-200 pt-4"
-            >
-              <div class="flex items-center gap-4 text-sm text-gray-500">
-                <span
-                  ><i class="i-mdi-eye"></i>
-                  {{ post.viewCount || 0 }} 浏览</span
-                >
-                <span
-                  ><i class="i-mdi-comment"></i>
-                  {{ post.commentCount || 0 }} 评论</span
-                >
-                <span
-                  ><i class="i-mdi-heart"></i>
-                  {{ post.likeCount || 0 }} 点赞</span
-                >
-              </div>
-
-              <!-- 点赞按钮 -->
-              <button
-                class="btn btn-sm"
-                :class="isLiked ? 'btn-error' : 'btn-outline'"
-                @click="toggleLike"
-                :disabled="!userStore.isLoggedIn || likeLoading"
-              >
-                <span
-                  class="loading loading-xs loading-spinner"
-                  v-if="likeLoading"
-                ></span>
-                <i
-                  class="i-mdi-heart"
-                  :class="isLiked ? 'fill-current' : ''"
-                ></i>
-                {{ isLiked ? "已点赞" : "点赞" }}
-                <span
-                  v-if="post.likeCount > 0"
-                  class="ml-1 badge badge-outline badge-sm"
-                >
-                  {{ post.likeCount }}
-                </span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- 评论区域 -->
-        <div class="card bg-base-100 shadow-md">
-          <div class="card-body">
-            <div class="mb-6 flex items-center justify-between">
-              <h2 class="card-title">
-                <i class="i-mdi-comment"></i>
-                评论 ({{ comments.length }})
-              </h2>
-
-              <!-- 评论排序 -->
-              <select
-                v-model="commentSort"
-                class="select-bordered select select-sm"
-                @change="() => loadComments()"
-              >
-                <option value="newest">最新</option>
-                <option value="oldest">最早</option>
-                <option value="popular">最热</option>
-              </select>
-            </div>
-
-            <!-- 发表评论 -->
-            <div class="form-control mb-6">
-              <label class="label">
-                <span class="label-text font-medium">发表评论</span>
+            <div class="dropdown dropdown-end">
+              <label tabindex="0" class="btn btn-ghost btn-sm">
+                <i class="i-mdi-share text-lg"></i>
+                分享
               </label>
-              <textarea
-                v-model="newComment"
-                placeholder="写下你的想法..."
-                class="textarea-bordered textarea h-24"
-                maxlength="1000"
-              ></textarea>
-              <div class="mt-2 flex items-center justify-between">
-                <span class="text-xs text-gray-500"
-                  >{{ newComment.length }}/1000</span
-                >
+              <ul
+                tabindex="0"
+                class="dropdown-content menu w-36 rounded-box border border-base-200 bg-base-100 p-2 shadow"
+              >
+                <li><a @click="shareToWeChat">微信</a></li>
+                <li><a @click="shareToWeibo">微博</a></li>
+                <li><a @click="copyLink">复制链接</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="overflow-hidden rounded-[32px] border border-slate-200/80 bg-white shadow-2xl shadow-slate-200/50 backdrop-blur-sm relative">
+          <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-blue-50/50 via-transparent to-transparent"></div>
+          <div class="relative">
+            <div class="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-slate-900 via-indigo-600 to-amber-500 shadow-lg"></div>
+            <div class="relative space-y-7 p-7 lg:p-10">
+              <div class="flex flex-wrap items-start gap-5">
+                <div class="relative">
+                  <div class="avatar">
+                    <div
+                      v-if="authorAvatar"
+                      class="flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl border-2 border-white bg-gradient-to-br from-slate-100 to-slate-200 shadow-lg"
+                    >
+                      <img
+                        :src="authorAvatar"
+                        :alt="post.author?.username || '用户头像'"
+                        class="h-full w-full object-cover"
+                      />
+                    </div>
+                    <div
+                      v-else
+                      class="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 shadow-lg"
+                    >
+                      <span class="text-xl font-bold text-white">
+                        {{ post.author?.username?.charAt(0)?.toUpperCase() || "U" }}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="absolute -bottom-1 -right-1 h-4 w-4 rounded-full bg-emerald-500 border-2 border-white shadow-lg"></div>
+                </div>
+                <div class="flex-1 space-y-3 min-w-[200px]">
+                  <div class="flex flex-wrap items-center gap-3">
+                    <span class="text-base font-bold text-slate-900">
+                      {{ post.author?.username || "未知用户" }}
+                    </span>
+                    <span class="badge badge-sm font-medium bg-gradient-to-r from-blue-500 to-indigo-600 text-white border-none shadow-md">
+                      {{ getCategoryName(post.category) }}
+                    </span>
+                    <span class="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded-full">
+                      {{ formatTime(post.createdAt) }}
+                    </span>
+                    <span
+                      v-if="post.updatedAt && post.updatedAt !== post.createdAt"
+                      class="text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded-full"
+                    >
+                      ✏️ 已编辑
+                    </span>
+                  </div>
+                  <h1 class="text-4xl font-bold leading-tight bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent lg:text-5xl">
+                    {{ post.title }}
+                  </h1>
+                  <p v-if="post.summary" class="text-base text-slate-600 leading-relaxed">
+                    {{ post.summary }}
+                  </p>
+                  <div class="flex flex-wrap gap-2">
+                    <span
+                      v-for="tag in getTagList(post.tags || '').slice(0, 6)"
+                      :key="tag"
+                      class="badge badge-sm border-slate-300 bg-slate-50 text-slate-700 hover:bg-slate-100 transition-colors"
+                    >
+                      #{{ tag }}
+                    </span>
+                  </div>
+                  <div class="flex flex-wrap gap-4 text-sm">
+                    <div class="flex items-center gap-2 bg-slate-100 rounded-full px-3 py-1">
+                      <i class="i-mdi-eye text-slate-600"></i>
+                      <span class="text-slate-700 font-medium">{{ post.viewCount || 0 }}</span>
+                      <span class="text-slate-500">浏览</span>
+                    </div>
+                    <div class="flex items-center gap-2 bg-blue-50 rounded-full px-3 py-1">
+                      <i class="i-mdi-comment text-blue-600"></i>
+                      <span class="text-blue-700 font-medium">{{ post.commentCount || 0 }}</span>
+                      <span class="text-blue-500">评论</span>
+                    </div>
+                    <div class="flex items-center gap-2 bg-rose-50 rounded-full px-3 py-1">
+                      <i class="i-mdi-heart text-rose-600"></i>
+                      <span class="text-rose-700 font-medium">{{ post.likeCount || 0 }}</span>
+                      <span class="text-rose-500">点赞</span>
+                    </div>
+                  </div>
+                </div>
+                <div v-if="isAuthor" class="dropdown dropdown-end">
+                  <label tabindex="0" class="btn btn-circle btn-ghost btn-sm shadow-md hover:shadow-lg transition-shadow">
+                    <i class="i-mdi-dots-horizontal text-slate-600"></i>
+                  </label>
+                  <ul
+                    tabindex="0"
+                    class="dropdown-content menu w-40 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl"
+                  >
+                    <li class="hover:bg-slate-50 rounded-xl">
+                      <a @click="editPost" class="text-slate-700">
+                        <i class="i-mdi-pencil"></i>
+                        编辑
+                      </a>
+                    </li>
+                    <li class="hover:bg-rose-50 rounded-xl">
+                      <a class="text-rose-600" @click="deletePost">
+                        <i class="i-mdi-delete"></i>
+                        删除
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="prose max-w-none text-slate-800 prose-headings:text-slate-900 prose-p:text-slate-700 prose-li:text-slate-700" v-html="post.content"></div>
+
+              <div class="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-gradient-to-r from-slate-50 to-slate-100 px-5 py-4 shadow-inner">
+                <div class="flex items-center gap-5 text-sm">
+                  <div class="flex items-center gap-2 text-slate-600">
+                    <i class="i-mdi-eye text-lg"></i>
+                    <span class="font-medium">{{ post.viewCount || 0 }}</span>
+                    <span>次浏览</span>
+                  </div>
+                  <div class="flex items-center gap-2 text-slate-600">
+                    <i class="i-mdi-comment text-lg"></i>
+                    <span class="font-medium">{{ post.commentCount || 0 }}</span>
+                    <span>条评论</span>
+                  </div>
+                  <div class="flex items-center gap-2 text-slate-600">
+                    <i class="i-mdi-heart text-lg"></i>
+                    <span class="font-medium">{{ post.likeCount || 0 }}</span>
+                    <span>人点赞</span>
+                  </div>
+                </div>
                 <button
-                  class="btn btn-sm btn-primary"
-                  @click="submitComment"
-                  :disabled="
-                    !userStore.isLoggedIn ||
-                    !newComment.trim() ||
-                    commentSubmitting
-                  "
+                  class="group btn btn-sm relative overflow-hidden"
+                  :class="isLiked ? 'btn-error shadow-lg shadow-rose-500/30' : 'btn-outline hover:bg-rose-50 hover:border-rose-300 hover:text-rose-600'"
+                  @click="toggleLike"
+                  :disabled="!userStore.isLoggedIn || likeLoading"
                 >
                   <span
                     class="loading loading-xs loading-spinner"
-                    v-if="commentSubmitting"
+                    v-if="likeLoading"
                   ></span>
-                  {{ commentSubmitting ? "发布中..." : "发表评论" }}
+                  <i
+                    class="i-mdi-heart transition-all"
+                    :class="isLiked ? 'fill-current text-white' : 'group-hover:scale-110'"
+                  ></i>
+                  <span class="font-medium">{{ isLiked ? "已点赞" : "点赞" }}</span>
+                  <span
+                    v-if="post.likeCount > 0"
+                    class="ml-1 badge badge-outline badge-sm"
+                    :class="isLiked ? 'border-white text-white' : 'border-rose-300 text-rose-600'"
+                  >
+                    {{ post.likeCount }}
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-8 rounded-[28px] border border-slate-200/80 bg-white p-7 shadow-xl shadow-slate-200/30 backdrop-blur-sm relative overflow-hidden">
+          <div class="absolute -top-20 -right-20 w-64 h-64 bg-gradient-to-br from-blue-100/30 to-purple-100/30 rounded-full blur-3xl"></div>
+          <div class="relative">
+            <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
+              <div class="flex items-center gap-3">
+                <div class="rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 p-3 shadow-lg shadow-indigo-500/30">
+                  <i class="i-mdi-comment text-white text-2xl"></i>
+                </div>
+                <div>
+                  <h2 class="text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent">
+                    评论区
+                  </h2>
+                  <p class="text-sm text-slate-500">共 {{ comments.length }} 条评论</p>
+                </div>
+              </div>
+              <div class="flex flex-wrap items-center gap-2">
+                <button
+                  v-for="option in commentSortOptions"
+                  :key="option.value"
+                  class="btn btn-sm transition-all"
+                  :class="commentSort === option.value
+                    ? 'btn-primary shadow-md shadow-blue-500/25 hover:shadow-blue-500/40'
+                    : 'btn-ghost hover:bg-slate-100'"
+                  @click="() => { commentSort = option.value; loadComments(); }"
+                >
+                  {{ option.emoji }} {{ option.label }}
                 </button>
               </div>
             </div>
 
-            <!-- 评论列表 -->
             <div
-              v-if="comments.length === 0 && !loading"
-              class="py-8 text-center text-gray-500"
+              v-if="!userStore.isLoggedIn"
+              class="mb-6 rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 p-5 text-sm shadow-inner"
             >
-              暂无评论，快来发表第一条评论吧！
+              <div class="flex items-center gap-3">
+                <div class="rounded-full bg-amber-100 p-2">
+                  <i class="i-mdi-information text-amber-600 text-lg"></i>
+                </div>
+                <div class="flex-1">
+                  <p class="text-slate-700 font-medium mb-1">登录后即可参与讨论</p>
+                  <p class="text-slate-600 text-xs">与作者互动，分享你的想法和见解</p>
+                </div>
+                <button class="btn btn-sm btn-primary shadow-md hover:shadow-lg transition-shadow" @click="router.push('/auth/login')">
+                  <i class="i-mdi-login"></i>
+                  去登录
+                </button>
+              </div>
+            </div>
+
+            <div class="mb-8">
+              <div class="rounded-2xl border border-slate-200 bg-gradient-to-b from-slate-50 to-white p-5 shadow-inner">
+                <label class="label mb-3">
+                  <span class="label-text font-semibold text-slate-800">
+                    💭 写下你的看法
+                  </span>
+                  <span class="label-text-alt text-slate-500">{{ newComment.length }}/1000</span>
+                </label>
+                <textarea
+                  v-model="newComment"
+                  placeholder="分享你的见解，与作者和其他读者互动..."
+                  class="textarea textarea-bordered h-32 w-full resize-none bg-white focus:border-slate-900 transition-colors"
+                  maxlength="1000"
+                ></textarea>
+                <div class="mt-3 flex items-center justify-between">
+                  <div class="flex items-center gap-3 text-xs text-slate-500">
+                    <span class="flex items-center gap-1">
+                      <i class="i-mdi-emoticon-happy-outline"></i>
+                      友善交流
+                    </span>
+                    <span class="flex items-center gap-1">
+                      <i class="i-mdi-shield-check"></i>
+                      理性讨论
+                    </span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span v-if="commentSubmitting" class="loading loading-xs loading-spinner text-primary"></span>
+                    <button
+                      class="group btn btn-sm btn-primary shadow-md hover:shadow-lg hover:shadow-blue-500/25 transition-all hover:scale-105 disabled:hover:scale-100"
+                      @click="submitComment"
+                      :disabled="!userStore.isLoggedIn || !newComment.trim() || commentSubmitting"
+                    >
+                      <i class="i-mdi-send group-hover:translate-x-0.5 transition-transform"></i>
+                      <span class="font-medium">{{ commentSubmitting ? "发布中..." : "发表评论" }}</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div v-if="comments.length === 0 && !loading" class="rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/50 p-12 text-center">
+              <div class="flex flex-col items-center gap-3">
+                <div class="rounded-full bg-slate-200 p-4">
+                  <i class="i-mdi-comment-outline text-4xl text-slate-400"></i>
+                </div>
+                <p class="text-lg font-semibold text-slate-700">暂无评论</p>
+                <p class="text-sm text-slate-500">快来发表第一条评论吧！</p>
+              </div>
             </div>
 
             <div v-else-if="comments.length > 0" class="space-y-4">
@@ -266,17 +319,17 @@
               />
             </div>
 
-            <!-- 加载更多 -->
-            <div v-if="hasMoreComments" class="mt-6 text-center">
+            <div v-if="hasMoreComments" class="mt-8 text-center">
               <button
-                class="btn btn-outline"
+                class="group btn btn-outline btn-wide shadow-md hover:shadow-lg transition-all hover:scale-105"
                 @click="loadMoreComments"
                 :disabled="loadingMore"
               >
                 <span
-                  class="loading loading-sm loading-spinner"
+                  class="loading loading-sm loading-spinner mr-2"
                   v-if="loadingMore"
                 ></span>
+                <i class="i-mdi-chevron-down group-hover:translate-y-0.5 transition-transform" v-else></i>
                 {{ loadingMore ? "加载中..." : "加载更多评论" }}
               </button>
             </div>
@@ -284,7 +337,6 @@
         </div>
       </template>
 
-      <!-- 举报模态框 -->
       <ReportModal
         ref="reportModalRef"
         :target-type="'post'"
@@ -320,6 +372,11 @@ const commentSubmitting = ref(false);
 const likeLoading = ref(false);
 const isLiked = ref(false);
 const commentSort = ref("newest");
+const commentSortOptions = [
+  { value: "newest", label: "最新", emoji: "🕒" },
+  { value: "oldest", label: "最早", emoji: "⏰" },
+  { value: "popular", label: "最热", emoji: "🔥" },
+];
 const currentPage = ref(1);
 const hasMoreComments = ref(false);
 const loadingMore = ref(false);

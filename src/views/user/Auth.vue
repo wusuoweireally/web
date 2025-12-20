@@ -409,12 +409,13 @@
 
 <script lang="ts" setup>
 import { ref, reactive, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useUserStore, type RegisterDto } from '@/stores'
 
 type AuthMode = 'login' | 'register'
 
 const router = useRouter()
+const route = useRoute()
 const userStore = useUserStore()
 
 const isLogin = ref(router.currentRoute.value.name === 'Login')
@@ -471,7 +472,12 @@ const handleLogin = async () => {
       id: Number(loginForm.id),
     })
     console.log('登录成功', res)
-    router.push('/')
+    const redirectParam = route.query.redirect
+    const redirectPath =
+      typeof redirectParam === 'string' && redirectParam.startsWith('/')
+        ? redirectParam
+        : '/'
+    router.replace(redirectPath)
   } catch (error: any) {
     console.error('登录失败:', error)
     loginError.value = error.message || '登录失败，请重试'
