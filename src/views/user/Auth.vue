@@ -1,51 +1,69 @@
 <template>
-  <div
-    class="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-blue-50 via-white to-purple-50 p-4"
-  >
-    <div class="relative w-full max-w-6xl">
-      <div
-        class="relative grid gap-0 overflow-hidden rounded-[32px] border border-purple-100/60 bg-white/95 shadow-2xl backdrop-blur-[60px] md:grid-cols-2"
-      >
-        <div
-          class="relative flex flex-col items-center justify-center gap-10 overflow-hidden bg-gradient-to-br from-purple-700 via-purple-500 to-sky-500 p-8 text-white sm:p-12"
-        >
-          <div class="relative text-center">
-            <div
-              class="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-[28px] border border-white/30 bg-white/15 shadow-2xl backdrop-blur-2xl"
-            >
-              <svg class="h-14 w-14 text-white" viewBox="0 0 24 24" fill="currentColor">
-                <path
-                  d="M12 2C6.48 2 2 6.48 2 12c0 .64.1 1.26.27 1.85l6.73-6.73L12 2zM21 12c0-.64-.1-1.26-.27-1.85l-6.73 6.73 6.73 6.73c.17-.59.27-1.21.27-1.85zM8.88 2.46L2.15 9.19c.59-.17 1.21-.27 1.85-.27 4.41 0 8 3.59 8 8 0 .64-.1 1.26-.27 1.85l6.73-6.73L8.88 2.46z"
-                />
-                <circle cx="7" cy="17" r="2.5" fill="#FF6B6B" />
-                <circle cx="17" cy="7" r="2.5" fill="#4ECDC4" />
-                <circle cx="17" cy="17" r="2.5" fill="#FFE66D" />
-                <circle cx="7" cy="7" r="2.5" fill="#95E1D3" />
-              </svg>
+  <div class="auth-shell">
+    <div class="auth-frame">
+      <div class="auth-card grid md:grid-cols-2">
+        <div class="auth-hero">
+          <div class="hero-noise"></div>
+          <div class="hero-radial hero-radial--top"></div>
+          <div class="hero-radial hero-radial--bottom"></div>
+          <div class="relative z-10 flex flex-col gap-10">
+            <div class="flex items-center gap-4">
+              <div class="brand-mark">
+                <svg class="h-10 w-10 text-white" viewBox="0 0 24 24" fill="currentColor">
+                  <path
+                    d="M12 2C6.48 2 2 6.48 2 12c0 .64.1 1.26.27 1.85l6.73-6.73L12 2zM21 12c0-.64-.1-1.26-.27-1.85l-6.73 6.73 6.73 6.73c.17-.59.27-1.21.27-1.85zM8.88 2.46L2.15 9.19c.59-.17 1.21-.27 1.85-.27 4.41 0 8 3.59 8 8 0 .64-.1 1.26-.27 1.85l6.73-6.73L8.88 2.46z"
+                  />
+                  <circle cx="7" cy="17" r="2.5" fill="#FDE68A" />
+                  <circle cx="17" cy="7" r="2.5" fill="#7DD3FC" />
+                  <circle cx="17" cy="17" r="2.5" fill="#FDBA74" />
+                  <circle cx="7" cy="7" r="2.5" fill="#C7D2FE" />
+                </svg>
+              </div>
+              <div>
+                <p class="hero-kicker">WALLPAPER ATLAS</p>
+                <h1 class="hero-title">随心壁纸</h1>
+              </div>
             </div>
-            <h1 class="text-4xl font-bold drop-shadow-lg">随心壁纸</h1>
-            <p class="mt-3 text-xl font-medium text-white/90">发现属于你的视觉盛宴</p>
+
+            <div class="space-y-4">
+              <p class="hero-lead">发现属于你的视觉盛宴</p>
+              <p class="hero-sub">
+                把灵感、色彩与质感收藏进你的桌面。从今日氛围到创作灵感，一键开启。
+              </p>
+            </div>
+
+            <div class="flex flex-wrap gap-3">
+              <span class="hero-chip">精选主题</span>
+              <span class="hero-chip">每日推荐</span>
+              <span class="hero-chip">高清原图</span>
+              <span class="hero-chip">自由收藏</span>
+            </div>
+
+            <div class="hero-stat">
+              <div>
+                <p class="hero-stat__label">当前灵感</p>
+                <p class="hero-stat__value">81,204</p>
+              </div>
+              <div class="hero-stat__line"></div>
+              <div>
+                <p class="hero-stat__label">用户共创</p>
+                <p class="hero-stat__value">9,310</p>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div class="relative bg-white">
-          <div class="pointer-events-none absolute inset-0">
-            <div class="pattern-grid-sm absolute inset-0 opacity-30"></div>
-            <div class="gradient-blob gradient-blob--one"></div>
-            <div class="gradient-blob gradient-blob--two"></div>
-          </div>
+        <div class="auth-panel">
+          <div class="panel-ornament"></div>
+          <div class="panel-grain"></div>
 
           <div class="relative space-y-8 p-6 sm:p-10 md:p-12">
             <div class="flex flex-col gap-2 text-center md:text-left">
-              <p class="text-xs font-semibold uppercase tracking-[0.35em] text-purple-500/80">
-                WALLPAPER MUSE
-              </p>
-              <h2 class="text-3xl font-extrabold text-gray-900 md:text-4xl">{{ formTitle }}</h2>
+              <p class="panel-kicker">WELCOME BACK</p>
+              <h2 class="panel-title">{{ formTitle }}</h2>
             </div>
 
-            <div
-              class="relative flex items-center rounded-full border border-gray-200 bg-gray-100/80 p-1"
-            >
+            <div class="tab-shell">
               <span :class="['tab-pill', { 'tab-pill--register': !isLogin }]"></span>
               <button
                 type="button"
@@ -70,7 +88,7 @@
             <Transition name="fade-slide" mode="out-in">
               <form v-if="isLogin" key="login" @submit.prevent="handleLogin" class="space-y-5">
                 <div class="space-y-3">
-                  <label class="text-sm font-semibold text-gray-600">账号</label>
+                  <label class="text-sm font-semibold text-slate-600">账号</label>
                   <div class="relative">
                     <span class="field-icon">
                       <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
@@ -91,7 +109,7 @@
                 </div>
 
                 <div class="space-y-3">
-                  <label class="text-sm font-semibold text-gray-600">密码</label>
+                  <label class="text-sm font-semibold text-slate-600">密码</label>
                   <div class="relative">
                     <span class="field-icon">
                       <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
@@ -111,7 +129,7 @@
                     <button
                       type="button"
                       @click="showPassword = !showPassword"
-                      class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 transition-colors hover:text-purple-600"
+                      class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors hover:text-emerald-600"
                       aria-label="切换密码显示"
                     >
                       <svg
@@ -134,11 +152,9 @@
                 </div>
 
                 <div class="flex flex-wrap items-center justify-between gap-3">
-                  <label class="flex cursor-pointer items-center gap-3 text-sm text-gray-600">
+                  <label class="flex cursor-pointer items-center gap-3 text-sm text-slate-600">
                     <input type="checkbox" v-model="rememberMe" class="peer sr-only" />
-                    <span
-                      class="flex h-5 w-5 items-center justify-center rounded-md border-2 border-gray-200 transition-all duration-200 peer-checked:border-transparent peer-checked:bg-gradient-to-r peer-checked:from-purple-600 peer-checked:to-blue-500"
-                    >
+                    <span class="checkmark">
                       <svg
                         v-if="rememberMe"
                         class="h-3.5 w-3.5 text-white"
@@ -150,9 +166,7 @@
                     </span>
                     记住我
                   </label>
-                  <a
-                    href="#"
-                    class="text-sm font-medium text-purple-600 transition-colors hover:text-purple-700"
+                  <a href="#" class="text-sm font-medium text-emerald-700 hover:text-emerald-800"
                     >忘记密码？</a
                   >
                 </div>
@@ -160,8 +174,7 @@
                 <button
                   type="submit"
                   :class="[
-                    'flex w-full items-center justify-center gap-3 rounded-2xl py-4 text-lg font-bold text-white shadow-xl transition-all duration-300',
-                    'bg-gradient-to-r from-purple-600 to-blue-500 hover:-translate-y-1 hover:from-purple-700 hover:to-blue-600',
+                    'primary-btn',
                     { 'cursor-not-allowed opacity-70 saturate-50': loginLoading },
                   ]"
                   :disabled="loginLoading"
@@ -195,11 +208,11 @@
                   </span>
                 </button>
 
-                <div class="text-center text-sm text-gray-600">
+                <div class="text-center text-sm text-slate-600">
                   还没有账号？
                   <button
                     type="button"
-                    class="font-semibold text-purple-600 hover:text-purple-700"
+                    class="font-semibold text-emerald-700 hover:text-emerald-800"
                     @click="switchForm('register')"
                   >
                     立即注册
@@ -218,7 +231,7 @@
 
               <form v-else key="register" @submit.prevent="handleRegister" class="space-y-4">
                 <div class="space-y-3">
-                  <label class="text-sm font-semibold text-gray-600">账号</label>
+                  <label class="text-sm font-semibold text-slate-600">账号</label>
                   <div class="relative">
                     <span class="field-icon">
                       <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
@@ -237,13 +250,13 @@
                       required
                     />
                   </div>
-                  <p v-if="registerErrors.id" class="text-sm text-red-500">
+                  <p v-if="registerErrors.id" class="text-sm text-rose-500">
                     {{ registerErrors.id }}
                   </p>
                 </div>
 
                 <div class="space-y-3">
-                  <label class="text-sm font-semibold text-gray-600">用户名</label>
+                  <label class="text-sm font-semibold text-slate-600">用户名</label>
                   <div class="relative">
                     <span class="field-icon">
                       <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
@@ -262,13 +275,13 @@
                       required
                     />
                   </div>
-                  <p v-if="registerErrors.username" class="text-sm text-red-500">
+                  <p v-if="registerErrors.username" class="text-sm text-rose-500">
                     {{ registerErrors.username }}
                   </p>
                 </div>
 
                 <div class="space-y-3">
-                  <label class="text-sm font-semibold text-gray-600">设置密码</label>
+                  <label class="text-sm font-semibold text-slate-600">设置密码</label>
                   <div class="relative">
                     <span class="field-icon">
                       <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
@@ -287,13 +300,13 @@
                       required
                     />
                   </div>
-                  <p v-if="registerErrors.password" class="text-sm text-red-500">
+                  <p v-if="registerErrors.password" class="text-sm text-rose-500">
                     {{ registerErrors.password }}
                   </p>
                 </div>
 
                 <div class="space-y-3">
-                  <label class="text-sm font-semibold text-gray-600">确认密码</label>
+                  <label class="text-sm font-semibold text-slate-600">确认密码</label>
                   <div class="relative">
                     <span class="field-icon">
                       <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
@@ -312,7 +325,7 @@
                       required
                     />
                   </div>
-                  <p v-if="registerErrors.confirmPassword" class="text-sm text-red-500">
+                  <p v-if="registerErrors.confirmPassword" class="text-sm text-rose-500">
                     {{ registerErrors.confirmPassword }}
                   </p>
                   <p
@@ -320,23 +333,21 @@
                       registerForm.confirmPassword &&
                       registerForm.password === registerForm.confirmPassword
                     "
-                    class="text-sm text-emerald-500"
+                    class="text-sm text-emerald-600"
                   >
                     密码匹配成功
                   </p>
                 </div>
 
-                <div
-                  class="flex items-start gap-3 rounded-2xl bg-gray-50/80 p-4 text-sm text-gray-600"
-                >
+                <div class="policy-card">
                   <input type="checkbox" class="checkbox checkbox-primary mt-1" required />
                   <p>
                     我已阅读并同意
-                    <a href="#" class="font-semibold text-purple-600 hover:text-purple-700"
+                    <a href="#" class="font-semibold text-emerald-700 hover:text-emerald-800"
                       >《用户协议》</a
                     >
                     和
-                    <a href="#" class="font-semibold text-purple-600 hover:text-purple-700"
+                    <a href="#" class="font-semibold text-emerald-700 hover:text-emerald-800"
                       >《隐私政策》</a
                     >
                   </p>
@@ -345,8 +356,7 @@
                 <button
                   type="submit"
                   :class="[
-                    'flex w-full items-center justify-center gap-3 rounded-2xl py-4 text-lg font-bold text-white shadow-xl transition-all duration-300',
-                    'bg-gradient-to-r from-purple-600 to-blue-500 hover:-translate-y-1 hover:from-purple-700 hover:to-blue-600',
+                    'primary-btn',
                     { 'cursor-not-allowed opacity-70 saturate-50': registerLoading },
                   ]"
                   :disabled="registerLoading"
@@ -379,11 +389,11 @@
                   </span>
                 </button>
 
-                <div class="text-center text-sm text-gray-600">
+                <div class="text-center text-sm text-slate-600">
                   已有账号？
                   <button
                     type="button"
-                    class="font-semibold text-purple-600 hover:text-purple-700"
+                    class="font-semibold text-emerald-700 hover:text-emerald-800"
                     @click="switchForm('login')"
                   >
                     立即登录
@@ -571,27 +581,231 @@ const handleRegister = async () => {
 </script>
 
 <style scoped>
-.pattern-grid {
-  background-image:
-    linear-gradient(rgba(148, 163, 184, 0.15) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(148, 163, 184, 0.1) 1px, transparent 1px);
-  background-size:
-    140px 140px,
-    140px 140px;
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Manrope:wght@400;500;600;700&display=swap');
+
+.auth-shell {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 12% 20%, rgba(251, 191, 36, 0.18), transparent 55%),
+    radial-gradient(circle at 88% 80%, rgba(13, 148, 136, 0.2), transparent 60%),
+    linear-gradient(135deg, #fdf6ed, #f7f1e8 55%, #f4efe7);
+  font-family: 'Manrope', 'Noto Sans SC', sans-serif;
+  color: #0f172a;
 }
 
-.pattern-grid-sm {
-  background-image:
-    linear-gradient(rgba(226, 232, 240, 0.6) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(226, 232, 240, 0.45) 1px, transparent 1px);
-  background-size:
-    60px 60px,
-    60px 60px;
+.auth-shell::before,
+.auth-shell::after {
+  content: '';
+  position: absolute;
+  width: 320px;
+  height: 320px;
+  border-radius: 42% 58% 62% 38%;
+  filter: blur(0px);
+  opacity: 0.16;
+  z-index: 0;
+}
+
+.auth-shell::before {
+  top: -110px;
+  left: -60px;
+  background: linear-gradient(130deg, #fbbf24, #fb7185);
+}
+
+.auth-shell::after {
+  bottom: -120px;
+  right: -80px;
+  background: linear-gradient(140deg, #14b8a6, #0ea5e9);
+}
+
+.auth-frame {
+  width: 100%;
+  max-width: 80rem;
+  position: relative;
+  z-index: 1;
+}
+
+.auth-card {
+  border-radius: 32px;
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow:
+    0 40px 80px rgba(15, 23, 42, 0.12),
+    0 12px 30px rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(28px);
+}
+
+.auth-hero {
+  position: relative;
+  padding: 3.5rem 3rem;
+  color: #fff7ed;
+  background:
+    linear-gradient(140deg, #0f766e, #14b8a6 45%, #f59e0b 100%),
+    radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.2), transparent 40%);
+  display: flex;
+  align-items: center;
 }
 
 .hero-noise {
+  position: absolute;
+  inset: 0;
   background-image: radial-gradient(rgba(255, 255, 255, 0.35) 1px, transparent 1px);
   background-size: 3px 3px;
+  opacity: 0.22;
+  mix-blend-mode: screen;
+}
+
+.hero-radial {
+  position: absolute;
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  filter: blur(30px);
+  opacity: 0.7;
+}
+
+.hero-radial--top {
+  top: -80px;
+  right: 30px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.55), transparent 60%);
+}
+
+.hero-radial--bottom {
+  bottom: -90px;
+  left: 40px;
+  background: radial-gradient(circle, rgba(253, 230, 138, 0.9), transparent 60%);
+}
+
+.brand-mark {
+  width: 62px;
+  height: 62px;
+  border-radius: 20px;
+  display: grid;
+  place-items: center;
+  background: rgba(15, 118, 110, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.3);
+}
+
+.hero-kicker {
+  font-size: 0.72rem;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.hero-title {
+  font-family: 'Fraunces', 'Noto Serif SC', serif;
+  font-size: 2.6rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.hero-lead {
+  font-family: 'Fraunces', 'Noto Serif SC', serif;
+  font-size: 2.1rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.hero-sub {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.86);
+  max-width: 420px;
+}
+
+.hero-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.12);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.hero-stat {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.1rem 1.4rem;
+  border-radius: 20px;
+  background: rgba(15, 118, 110, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.hero-stat__label {
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.hero-stat__value {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.hero-stat__line {
+  width: 1px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.auth-panel {
+  position: relative;
+  background: #fdf6ef;
+  color: #0f172a;
+}
+
+.panel-ornament {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(115deg, rgba(253, 186, 116, 0.25), transparent 35%),
+    linear-gradient(220deg, rgba(14, 165, 233, 0.18), transparent 45%);
+  opacity: 0.8;
+}
+
+.panel-grain {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(15, 23, 42, 0.08) 0.6px, transparent 0.6px);
+  background-size: 3px 3px;
+  opacity: 0.25;
+}
+
+.panel-kicker {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.45em;
+  text-transform: uppercase;
+  color: rgba(15, 118, 110, 0.75);
+}
+
+.panel-title {
+  font-family: 'Fraunces', 'Noto Serif SC', serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.tab-shell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.05);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  padding: 0.3rem;
 }
 
 .tab-pill {
@@ -600,8 +814,8 @@ const handleRegister = async () => {
   width: calc(50% - 0.25rem);
   height: calc(100% - 0.5rem);
   border-radius: 9999px;
-  background: linear-gradient(120deg, #a855f7, #3b82f6);
-  box-shadow: 0 20px 40px rgba(79, 70, 229, 0.35);
+  background: linear-gradient(120deg, #10b981, #f59e0b);
+  box-shadow: 0 15px 35px rgba(15, 23, 42, 0.2);
   transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -615,16 +829,16 @@ const handleRegister = async () => {
   z-index: 1;
   border: none;
   background: transparent;
-  padding: 0.85rem 0;
+  padding: 0.8rem 0;
   border-radius: 9999px;
   font-weight: 600;
   font-size: 0.95rem;
-  color: #9ca3af;
+  color: #94a3b8;
   transition: color 0.3s ease;
 }
 
 .tab-btn--active {
-  color: #111827;
+  color: #0f172a;
 }
 
 .field-icon {
@@ -638,19 +852,19 @@ const handleRegister = async () => {
   width: 44px;
   height: 44px;
   border-radius: 16px;
-  background: rgba(229, 231, 235, 0.5);
-  color: #7c3aed;
-  box-shadow: 0 15px 35px rgba(15, 23, 42, 0.12);
+  background: rgba(15, 23, 42, 0.06);
+  color: #0f766e;
+  box-shadow: 0 12px 25px rgba(15, 23, 42, 0.08);
 }
 
 .enhanced-input {
   width: 100%;
   height: 3.5rem;
-  border-radius: 1.5rem;
-  border: 2px solid rgba(226, 232, 240, 0.9);
-  background: rgba(255, 255, 255, 0.95);
+  border-radius: 1.4rem;
+  border: 2px solid rgba(148, 163, 184, 0.25);
+  background: rgba(255, 255, 255, 0.8);
   padding: 0 1.5rem 0 4.5rem;
-  color: #111827;
+  color: #0f172a;
   font-weight: 500;
   transition:
     border-color 0.3s ease,
@@ -659,59 +873,64 @@ const handleRegister = async () => {
 }
 
 .enhanced-input:focus {
-  border-color: #c084fc;
-  box-shadow: 0 25px 45px -20px rgba(79, 70, 229, 0.45);
+  border-color: rgba(16, 185, 129, 0.6);
+  box-shadow: 0 18px 30px -20px rgba(15, 23, 42, 0.4);
   outline: none;
-  background: #fff;
+  background: #fffdf8;
 }
 
 .enhanced-input--error {
   border-color: #f87171;
 }
 
-.social-btn {
+.checkmark {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.75rem;
-  border-radius: 1.25rem;
-  border: 1px solid rgba(226, 232, 240, 0.9);
-  background: rgba(255, 255, 255, 0.95);
-  font-weight: 600;
-  color: #6b7280;
-  transition:
-    transform 0.25s ease,
-    box-shadow 0.25s ease,
-    border-color 0.25s ease;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 0.45rem;
+  border: 2px solid rgba(148, 163, 184, 0.45);
+  transition: all 0.2s ease;
+  background: rgba(255, 255, 255, 0.9);
 }
 
-.social-btn:hover {
-  transform: translateY(-3px);
-  border-color: rgba(196, 181, 253, 0.9);
-  box-shadow: 0 15px 35px rgba(79, 70, 229, 0.15);
+.peer:checked + .checkmark {
+  border-color: transparent;
+  background: linear-gradient(120deg, #10b981, #f59e0b);
 }
 
-.info-card {
+.primary-btn {
   display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
   align-items: center;
-  justify-content: space-between;
-  border-radius: 1.75rem;
-  border: 1px solid rgba(226, 232, 240, 0.9);
-  background: rgba(249, 250, 251, 0.95);
-  padding: 1.25rem 1.5rem;
-}
-
-.info-card__action {
-  border-radius: 9999px;
-  background: linear-gradient(120deg, #a855f7, #3b82f6);
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  border-radius: 1.4rem;
+  padding: 1rem 1.5rem;
+  font-size: 1.05rem;
+  font-weight: 700;
   color: #fff;
-  font-weight: 600;
-  padding: 0.65rem 1.5rem;
-  border: none;
-  box-shadow: 0 18px 35px rgba(79, 70, 229, 0.25);
+  background: linear-gradient(120deg, #0f766e, #f59e0b);
+  box-shadow: 0 25px 45px rgba(15, 23, 42, 0.22);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.primary-btn:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 30px 50px rgba(15, 23, 42, 0.28);
+}
+
+.policy-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  border-radius: 1.2rem;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  padding: 1rem 1.25rem;
+  font-size: 0.9rem;
+  color: #475569;
 }
 
 .glass-error {
@@ -725,28 +944,6 @@ const handleRegister = async () => {
   color: #b91c1c;
 }
 
-.gradient-blob {
-  position: absolute;
-  filter: blur(80px);
-  opacity: 0.7;
-}
-
-.gradient-blob--one {
-  top: -3rem;
-  right: -4rem;
-  width: 18rem;
-  height: 18rem;
-  background: radial-gradient(circle, rgba(167, 139, 250, 0.6), transparent 60%);
-}
-
-.gradient-blob--two {
-  bottom: -4rem;
-  left: -4rem;
-  width: 15rem;
-  height: 15rem;
-  background: radial-gradient(circle, rgba(59, 130, 246, 0.45), transparent 60%);
-}
-
 .fade-slide-enter-active,
 .fade-slide-leave-active {
   transition: all 0.35s ease;
@@ -758,31 +955,17 @@ const handleRegister = async () => {
   transform: translateY(12px);
 }
 
-.animate-float {
-  animation: float 6s ease-in-out infinite;
-}
-
-.animate-float-delayed {
-  animation: float-delayed 5s ease-in-out infinite;
-}
-
-@keyframes float {
-  0%,
-  100% {
-    transform: translateY(0px);
+@media (max-width: 768px) {
+  .auth-hero {
+    padding: 2.5rem 2rem;
   }
-  50% {
-    transform: translateY(-20px);
-  }
-}
 
-@keyframes float-delayed {
-  0%,
-  100% {
-    transform: translateY(0px);
+  .hero-title {
+    font-size: 2.1rem;
   }
-  50% {
-    transform: translateY(-15px);
+
+  .hero-lead {
+    font-size: 1.6rem;
   }
 }
 </style>

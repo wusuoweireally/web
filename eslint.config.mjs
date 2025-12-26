@@ -16,7 +16,8 @@ export default tseslint.config(
       parser: vueParser,
       parserOptions: {
         parser: tseslint.parser,
-        sourceType: 'module'
+        sourceType: 'module',
+        tsconfigRootDir: import.meta.dirname
       }
     },
     rules: {

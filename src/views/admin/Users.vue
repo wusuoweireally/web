@@ -502,26 +502,27 @@
     <transition name="fade">
       <div
         v-if="showCreateModal"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-sm"
       >
         <div
-          class="relative w-full max-w-4xl overflow-hidden rounded-3xl border border-white/10 bg-slate-900/95 text-white shadow-2xl"
+          class="relative w-full max-w-4xl overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-slate-950/95 via-slate-900/95 to-slate-800/90 text-white shadow-2xl"
+          style="font-family: 'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;"
         >
           <button
-            class="btn btn-sm btn-circle absolute right-4 top-4 border-white/20 bg-white/10 text-white hover:bg-white/20"
+            class="btn btn-sm btn-circle absolute right-4 top-4 border-white/15 bg-white/10 text-white hover:bg-white/20"
             @click="closeCreateModal"
             :disabled="createLoading"
           >
             ✕
           </button>
           <div class="space-y-6 p-6">
-            <div>
-              <p class="text-xs uppercase tracking-[0.4em] text-white/50">User Center</p>
+            <div class="rounded-2xl border border-white/10 bg-white/5 p-5">
+              <p class="text-xs font-semibold uppercase tracking-[0.3em] text-cyan-200/70">User Center</p>
               <h3 class="mt-2 text-2xl font-semibold">创建新用户</h3>
               <p class="mt-1 text-sm text-white/60">分配一个唯一的用户ID并为其设置初始密码与角色</p>
             </div>
 
-            <form class="grid gap-5 md:grid-cols-2" @submit.prevent="submitCreateUser">
+            <form class="grid gap-5 md:grid-cols-2 rounded-2xl border border-white/10 bg-white/5 p-5" @submit.prevent="submitCreateUser">
               <div class="form-control">
                 <label class="label text-sm text-white/60">用户ID</label>
                 <input
@@ -529,7 +530,7 @@
                   type="number"
                   min="1"
                   placeholder="例如 10001"
-                  class="input border-white/20 bg-white/10 text-white placeholder:text-white/30 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/50"
+                  class="input border-white/10 bg-slate-900/60 text-white placeholder:text-white/30 focus:border-cyan-300 focus:ring-2 focus:ring-cyan-300/40"
                   :disabled="createLoading"
                 />
                 <span v-if="createErrors.id" class="mt-1 text-xs text-red-300">{{
@@ -543,7 +544,7 @@
                   v-model="createUserForm.username"
                   type="text"
                   placeholder="输入用户名"
-                  class="input border-white/20 bg-white/10 text-white placeholder:text-white/30 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/50"
+                  class="input border-white/10 bg-slate-900/60 text-white placeholder:text-white/30 focus:border-cyan-300 focus:ring-2 focus:ring-cyan-300/40"
                   :disabled="createLoading"
                 />
                 <span v-if="createErrors.username" class="mt-1 text-xs text-red-300">{{
@@ -557,7 +558,7 @@
                   v-model="createUserForm.email"
                   type="email"
                   placeholder="user@example.com"
-                  class="input border-white/20 bg-white/10 text-white placeholder:text-white/30 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/50"
+                  class="input border-white/10 bg-slate-900/60 text-white placeholder:text-white/30 focus:border-cyan-300 focus:ring-2 focus:ring-cyan-300/40"
                   :disabled="createLoading"
                 />
                 <span v-if="createErrors.email" class="mt-1 text-xs text-red-300">{{
@@ -569,7 +570,7 @@
                 <label class="label text-sm text-white/60">角色</label>
                 <select
                   v-model="createUserForm.role"
-                  class="select border-white/20 bg-white/10 text-white focus:border-purple-400 focus:ring-2 focus:ring-purple-400/50"
+                  class="select border-white/10 bg-slate-900/60 text-white focus:border-cyan-300 focus:ring-2 focus:ring-cyan-300/40"
                   :disabled="createLoading"
                 >
                   <option
@@ -589,7 +590,7 @@
                   v-model="createUserForm.password"
                   type="password"
                   placeholder="至少6位字符，建议包含字母与数字"
-                  class="input border-white/20 bg-white/10 text-white placeholder:text-white/30 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/50"
+                  class="input border-white/10 bg-slate-900/60 text-white placeholder:text-white/30 focus:border-cyan-300 focus:ring-2 focus:ring-cyan-300/40"
                   :disabled="createLoading"
                 />
                 <span v-if="createErrors.password" class="mt-1 text-xs text-red-300">{{
@@ -604,7 +605,7 @@
                   rows="3"
                   maxlength="500"
                   placeholder="为该用户添加简短介绍，方便识别身份"
-                  class="textarea border-white/20 bg-white/10 text-white placeholder:text-white/30 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/50"
+                  class="textarea border-white/10 bg-slate-900/60 text-white placeholder:text-white/30 focus:border-cyan-300 focus:ring-2 focus:ring-cyan-300/40"
                   :disabled="createLoading"
                 ></textarea>
               </div>
@@ -618,7 +619,7 @@
                 <div class="flex gap-3">
                   <button
                     type="button"
-                    class="btn btn-ghost border-white/20 text-white hover:bg-white/10"
+                    class="btn btn-ghost border-white/10 text-white/80 hover:bg-white/10 hover:text-white"
                     @click="closeCreateModal"
                     :disabled="createLoading"
                   >
@@ -626,7 +627,7 @@
                   </button>
                   <button
                     type="submit"
-                    class="btn border-none bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600"
+                    class="btn border-none bg-gradient-to-r from-cyan-400 via-sky-400 to-teal-400 text-slate-900 hover:from-cyan-300 hover:via-sky-300 hover:to-teal-300"
                     :class="{ loading: createLoading }"
                     :disabled="createLoading"
                   >

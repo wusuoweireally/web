@@ -122,6 +122,134 @@
         <WallpaperShowcase />
       </section>
 
+      <!-- Feature Highlights -->
+      <section class="rounded-[2.5rem] bg-white/90 p-10 shadow-2xl ring-1 ring-black/5">
+        <div class="flex flex-wrap items-end justify-between gap-6">
+          <div>
+            <p class="text-sm font-semibold text-slate-500">平台能力</p>
+            <h2 class="mt-2 text-2xl font-semibold text-slate-900">为灵感而生的功能矩阵</h2>
+          </div>
+          <router-link
+            to="/wallpapers"
+            class="text-sm font-semibold text-sky-600 transition hover:text-sky-700"
+          >
+            查看全部能力 →
+          </router-link>
+        </div>
+        <div class="mt-8 grid gap-6 lg:grid-cols-4">
+          <article
+            v-for="feature in featureHighlights"
+            :key="feature.title"
+            class="rounded-3xl border border-slate-100 bg-white p-6 shadow-lg shadow-slate-200/50"
+          >
+            <div class="text-2xl">{{ feature.icon }}</div>
+            <h3 class="mt-4 text-lg font-semibold text-slate-900">{{ feature.title }}</h3>
+            <p class="mt-2 text-sm leading-relaxed text-slate-600">{{ feature.description }}</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- Curated Collections -->
+      <section class="rounded-[2.5rem] bg-gradient-to-br from-slate-50 via-white to-sky-50 p-10">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <p class="text-sm font-semibold text-slate-500">策展专题</p>
+            <h2 class="mt-2 text-2xl font-semibold text-slate-900">每周精选主题合辑</h2>
+          </div>
+          <router-link
+            to="/wallpapers"
+            class="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-900"
+          >
+            进入策展中心
+          </router-link>
+        </div>
+        <div class="mt-8 grid gap-6 lg:grid-cols-3">
+          <article
+            v-for="collection in curatedCollections"
+            :key="collection.name"
+            class="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl shadow-slate-200/60"
+          >
+            <div class="relative h-44 overflow-hidden">
+              <img
+                :src="collection.image"
+                :alt="collection.name"
+                class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-slate-900/70"></div>
+              <div class="absolute bottom-4 left-4">
+                <p class="text-xs uppercase tracking-wide text-white/70">{{ collection.mood }}</p>
+                <h3 class="text-lg font-semibold text-white">{{ collection.name }}</h3>
+              </div>
+              <div
+                class="absolute right-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-slate-700"
+              >
+                {{ collection.count }}
+              </div>
+            </div>
+            <div class="space-y-3 p-5">
+              <p class="text-sm text-slate-600">{{ collection.description }}</p>
+              <div class="flex flex-wrap gap-2 text-xs text-slate-500">
+                <span
+                  v-for="tag in collection.tags"
+                  :key="tag"
+                  class="rounded-full border border-slate-200 px-2 py-1"
+                >
+                  {{ tag }}
+                </span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- Community -->
+      <section class="rounded-[2.5rem] bg-white/90 p-10 shadow-2xl ring-1 ring-black/5">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <p class="text-sm font-semibold text-slate-500">社区生态</p>
+            <h2 class="mt-2 text-2xl font-semibold text-slate-900">创作者与灵感收藏者的聚集地</h2>
+          </div>
+          <router-link
+            to="/forums"
+            class="text-sm font-semibold text-slate-700 transition hover:text-slate-900"
+          >
+            进入社区 →
+          </router-link>
+        </div>
+        <div class="mt-8 grid gap-6 lg:grid-cols-[1fr_1.2fr]">
+          <div class="grid gap-4 rounded-3xl bg-slate-50 p-6">
+            <div
+              v-for="stat in communityStats"
+              :key="stat.label"
+              class="flex items-center justify-between rounded-2xl bg-white px-4 py-3 shadow"
+            >
+              <span class="text-sm text-slate-500">{{ stat.label }}</span>
+              <span class="text-lg font-semibold text-slate-900">{{ stat.value }}</span>
+            </div>
+          </div>
+          <div class="grid gap-4">
+            <article
+              v-for="voice in communityVoices"
+              :key="voice.name"
+              class="flex gap-4 rounded-3xl border border-slate-100 bg-white p-6 shadow-lg shadow-slate-200/60"
+            >
+              <img
+                :src="voice.avatar"
+                :alt="voice.name"
+                class="h-14 w-14 rounded-2xl object-cover"
+              />
+              <div>
+                <p class="text-sm font-semibold text-slate-900">{{ voice.name }}</p>
+                <p class="text-xs uppercase tracking-wide text-slate-400">{{ voice.role }}</p>
+                <p class="mt-3 text-sm leading-relaxed text-slate-600">
+                  {{ voice.quote }}
+                </p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
       <!-- CTA -->
       <section
         class="overflow-hidden rounded-[2.5rem] border border-slate-100 bg-gradient-to-r from-sky-100 via-white to-purple-50 p-10 text-slate-900 shadow-2xl shadow-slate-200/60"

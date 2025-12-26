@@ -266,17 +266,17 @@
 
     <Teleport to="body">
       <transition name="fade">
-        <div v-if="showUploadModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-          <div class="relative w-full max-w-5xl rounded-3xl bg-slate-900/95 border border-white/10 shadow-2xl text-white overflow-hidden">
-            <button class="btn btn-circle btn-sm absolute right-4 top-4 bg-white/10 hover:bg-white/20 border-white/20 text-white" @click="closeUploadModal" :disabled="uploadLoading">
+        <div v-if="showUploadModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4">
+          <div class="relative w-full max-w-5xl overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-slate-950/95 via-slate-900/95 to-slate-800/90 text-white shadow-2xl" style="font-family: 'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;">
+            <button class="btn btn-circle btn-sm absolute right-4 top-4 border-white/15 bg-white/10 text-white hover:bg-white/20" @click="closeUploadModal" :disabled="uploadLoading">
               ✕
             </button>
-            <div class="grid gap-6 p-6 md:grid-cols-2">
-              <div class="space-y-5">
+            <div class="grid gap-6 p-6 md:grid-cols-[1.1fr_0.9fr]">
+              <div class="space-y-6 rounded-2xl border border-white/10 bg-white/5 p-5">
                 <div>
-                  <p class="text-xs uppercase tracking-[0.4em] text-white/50">Upload</p>
-                  <h3 class="text-2xl font-semibold mt-2">上传新壁纸</h3>
-                  <p class="text-sm text-white/60 mt-1">选择图片、设置分类与标签，支持批量标签输入（逗号或回车）</p>
+                  <p class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200/70">Wallpaper Upload</p>
+                  <h3 class="mt-2 text-2xl font-semibold">上传新壁纸</h3>
+                  <p class="mt-1 text-sm text-white/60">选择图片、设置分类与标签，支持批量标签输入（逗号或回车）</p>
                 </div>
 
                 <div class="space-y-3">
@@ -289,12 +289,12 @@
                   </div>
                   <label
                     v-else
-                    class="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-white/30 bg-white/5 p-6 cursor-pointer hover:border-white/60 transition-colors"
+                    class="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-white/20 bg-gradient-to-br from-white/5 to-white/10 p-6 text-white/70 transition hover:border-emerald-300/70 hover:text-white"
                   >
-                    <iconify-icon icon="mdi:cloud-upload" class="text-3xl text-white/70"></iconify-icon>
-                    <div class="text-center text-sm text-white/70">
+                    <iconify-icon icon="mdi:cloud-upload" class="text-3xl text-white/80"></iconify-icon>
+                    <div class="text-center text-sm">
                       <p>点击或拖拽图片到此处</p>
-                      <p class="text-xs text-white/40 mt-1">支持 JPG / PNG / WEBP，建议 4K+ 清晰度</p>
+                      <p class="mt-1 text-xs text-white/40">支持 JPG / PNG / WEBP，建议 4K+ 清晰度</p>
                     </div>
                     <input ref="uploadFileInput" type="file" accept="image/*" class="hidden" @change="handleUploadFileChange" />
                   </label>
@@ -308,16 +308,16 @@
                       v-model="uploadForm.tagsInput"
                       type="text"
                       placeholder="输入标签后按回车或逗号"
-                      class="input flex-1 bg-white/10 border-white/20 text-white placeholder:text-white/30 focus:border-pink-400 focus:ring-2 focus:ring-pink-400/50"
+                      class="input flex-1 border-white/10 bg-slate-900/60 text-white placeholder:text-white/30 focus:border-emerald-300 focus:ring-2 focus:ring-emerald-300/40"
                       :disabled="uploadLoading"
                       @keydown.enter.prevent="addUploadTagFromInput"
                     />
-                    <button type="button" class="btn btn-outline border-white/30 text-white/80 hover:text-white hover:bg-white/10" @click="addUploadTagFromInput" :disabled="uploadLoading">
+                    <button type="button" class="btn btn-outline border-white/20 text-white/80 hover:border-emerald-300/70 hover:bg-emerald-300/10 hover:text-white" @click="addUploadTagFromInput" :disabled="uploadLoading">
                       添加
                     </button>
                   </div>
                   <div class="flex flex-wrap gap-2 min-h-[34px]">
-                    <span v-for="tag in uploadTags" :key="tag" class="badge badge-lg bg-white/15 border-none text-white gap-1">
+                    <span v-for="tag in uploadTags" :key="tag" class="badge badge-lg bg-white/10 border border-white/10 text-white gap-1">
                       #{{ tag }}
                       <button type="button" class="btn btn-ghost btn-xs btn-circle text-white/70 hover:text-white" @click="removeUploadTag(tag)" :disabled="uploadLoading">
                         ×
@@ -329,7 +329,7 @@
                 </div>
               </div>
 
-              <div class="space-y-4">
+              <div class="space-y-5 rounded-2xl border border-white/10 bg-white/5 p-5">
                 <div class="form-control">
                   <label class="label text-sm text-white/60">标题（可选）</label>
                   <input
@@ -337,7 +337,7 @@
                     type="text"
                     maxlength="80"
                     placeholder="为壁纸添加一个易于识别的标题"
-                    class="input bg-white/10 border-white/20 text-white placeholder:text-white/30 focus:border-pink-400 focus:ring-2 focus:ring-pink-400/50"
+                    class="input border-white/10 bg-slate-900/60 text-white placeholder:text-white/30 focus:border-emerald-300 focus:ring-2 focus:ring-emerald-300/40"
                     :disabled="uploadLoading"
                   />
                 </div>
@@ -348,7 +348,7 @@
                     rows="4"
                     maxlength="400"
                     placeholder="补充壁纸灵感、拍摄环境或作者信息"
-                    class="textarea bg-white/10 border-white/20 text-white placeholder:text-white/30 focus:border-pink-400 focus:ring-2 focus:ring-pink-400/50"
+                    class="textarea border-white/10 bg-slate-900/60 text-white placeholder:text-white/30 focus:border-emerald-300 focus:ring-2 focus:ring-emerald-300/40"
                     :disabled="uploadLoading"
                   ></textarea>
                 </div>
@@ -356,7 +356,7 @@
                   <label class="label text-sm text-white/60">分类</label>
                   <select
                     v-model="uploadForm.category"
-                    class="select bg-white/10 border-white/20 text-white focus:border-pink-400 focus:ring-2 focus:ring-pink-400/50"
+                    class="select border-white/10 bg-slate-900/60 text-white focus:border-emerald-300 focus:ring-2 focus:ring-emerald-300/40"
                     :disabled="uploadLoading"
                   >
                     <option v-for="option in categoryOptions" :key="option.value" :value="option.value" class="bg-slate-900">
@@ -377,12 +377,12 @@
                 </div>
 
                 <div class="flex flex-col gap-3 md:flex-row md:justify-end">
-                  <button type="button" class="btn btn-ghost border-white/20 text-white hover:bg-white/10" @click="closeUploadModal" :disabled="uploadLoading">
+                  <button type="button" class="btn btn-ghost border-white/10 text-white/80 hover:bg-white/10 hover:text-white" @click="closeUploadModal" :disabled="uploadLoading">
                     取消
                   </button>
                   <button
                     type="button"
-                    class="btn bg-gradient-to-r from-purple-500 to-pink-500 border-none text-white hover:from-purple-600 hover:to-pink-600"
+                    class="btn border-none bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 text-slate-900 hover:from-emerald-300 hover:via-teal-300 hover:to-cyan-300"
                     :class="{ loading: uploadLoading }"
                     :disabled="uploadLoading"
                     @click="submitWallpaperUpload"
@@ -479,6 +479,7 @@
 import { reactive, ref, onMounted, computed } from 'vue'
 import adminService, { type AdminWallpaper, type AdminWallpaperQuery, type AdminWallpaperTag } from '@/services/admin'
 import wallpaperService from '@/services/wallpaper'
+import type { ApiResponse } from '@/config/api'
 
 interface PaginationMeta {
   page: number
@@ -895,8 +896,9 @@ const submitWallpaperUpload = async () => {
       }
     )
 
-    if ((response as any).success) {
-      const uploadedWallpaper = (response as any).data as AdminWallpaper
+    const uploadResponse = response as ApiResponse<AdminWallpaper>
+    if (uploadResponse.success && uploadResponse.data) {
+      const uploadedWallpaper = uploadResponse.data
       if (uploadForm.title.trim() || uploadForm.description.trim()) {
         await adminService.adminUpdateWallpaper(uploadedWallpaper.id, {
           title: uploadForm.title.trim() || undefined,
@@ -908,7 +910,7 @@ const submitWallpaperUpload = async () => {
       closeUploadModal()
       await loadWallpapers()
     } else {
-      throw new Error((response as any).message || '上传失败')
+      throw new Error(uploadResponse.message || '上传失败')
     }
   } catch (error) {
     console.error('上传壁纸失败:', error)

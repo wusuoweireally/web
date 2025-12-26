@@ -290,9 +290,3 @@ onUnmounted(() => {
   console.log("wallpaperViews 组件卸载，清理完成");
 });
 </script>
-
-<style scoped>
-.aspect-video {
-  aspect-ratio: 16 / 9;
-}
-</style>

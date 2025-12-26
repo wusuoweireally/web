@@ -30,6 +30,8 @@ export interface UploadWallpaperParams {
   file: File;
   category: string;
   tags: string[];
+  title?: string;
+  description?: string;
 }
 
 /**
@@ -63,9 +65,12 @@ export interface Uploader {
 export interface Wallpaper {
   id: number;
   fileUrl: string;
+  title?: string;
+  description?: string;
   category: 'general' | 'anime' | 'people';
   thumbnailUrl?: string;
   fileSize: number;
+  format?: string;
   width: number;
   height: number;
   aspectRatio: number;
@@ -111,6 +116,14 @@ class WallpaperService {
     formData.append("file", params.file);
 
     formData.append("category", params.category);
+
+    if (params.title) {
+      formData.append("title", params.title);
+    }
+
+    if (params.description) {
+      formData.append("description", params.description);
+    }
 
     if (params.tags && params.tags.length > 0) {
       // 后端期望tags是数组，但FormData不能直接传递数组

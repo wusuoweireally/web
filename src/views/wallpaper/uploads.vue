@@ -395,6 +395,99 @@
               </div>
             </div>
 
+            <!-- 标题与描述 -->
+            <div class="space-y-4">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <div
+                    class="bg-primary/20 flex h-6 w-6 items-center justify-center rounded-lg text-primary"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="h-4 w-4"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                    >
+                      <path
+                        d="M3 5h18v2H3V5zm0 6h12v2H3v-2zm0 6h18v2H3v-2z"
+                      />
+                    </svg>
+                  </div>
+                  <label class="text-base-content/80 text-sm font-semibold">作品标题</label>
+                  <span class="badge badge-outline badge-xs">必填</span>
+                </div>
+                <span class="text-base-content/50 text-xs">
+                  {{ formData.title.length }}/{{ MAX_TITLE_LENGTH }}
+                </span>
+              </div>
+              <input
+                v-model="formData.title"
+                type="text"
+                :maxlength="MAX_TITLE_LENGTH"
+                placeholder="给壁纸取一个好记的名字"
+                class="border-base-content/30 bg-base-100/90 focus:ring-primary/30 input h-12 w-full rounded-2xl border-2 px-4 shadow-sm transition-all hover:bg-base-100 focus:border-primary focus:ring-4"
+              />
+              <p v-if="errors.title" class="flex items-center gap-1 text-sm text-error">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path
+                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"
+                  />
+                </svg>
+                {{ errors.title }}
+              </p>
+
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <div
+                    class="bg-secondary/20 flex h-6 w-6 items-center justify-center rounded-lg text-secondary"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="h-4 w-4"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                    >
+                      <path
+                        d="M4 6h16v2H4V6zm0 5h16v2H4v-2zm0 5h10v2H4v-2z"
+                      />
+                    </svg>
+                  </div>
+                  <label class="text-base-content/80 text-sm font-semibold">作品描述</label>
+                </div>
+                <span class="text-base-content/50 text-xs">
+                  {{ formData.description.length }}/{{ MAX_DESCRIPTION_LENGTH }}
+                </span>
+              </div>
+              <textarea
+                v-model="formData.description"
+                :maxlength="MAX_DESCRIPTION_LENGTH"
+                rows="3"
+                placeholder="补充风格、拍摄灵感或适用场景..."
+                class="border-base-content/30 bg-base-100/90 focus:ring-secondary/30 textarea w-full rounded-2xl border-2 p-4 shadow-sm transition-all hover:bg-base-100 focus:border-secondary focus:ring-4"
+              ></textarea>
+              <p
+                v-if="errors.description"
+                class="flex items-center gap-1 text-sm text-error"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path
+                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"
+                  />
+                </svg>
+                {{ errors.description }}
+              </p>
+            </div>
+
             <!-- 美化的标签区域 -->
             <div class="space-y-4">
               <div class="flex items-center justify-between">
@@ -781,6 +874,8 @@ const currentUserId = computed(() => userStore.user?.id || 0)
 // 表单数据
 const formData = reactive({
   imageFile: null as File | null,
+  title: '',
+  description: '',
   category: 'general',
   tags: [] as string[],
 })
@@ -797,6 +892,8 @@ const imageInfo = ref<{
 // 错误信息
 const errors = reactive({
   image: '',
+  title: '',
+  description: '',
   category: '',
   tags: '',
 })
@@ -829,6 +926,8 @@ const defaultTagSeeds = [
 const recommendedTags = ref<string[]>([...defaultTagSeeds])
 const tagSuggestions = ref<Tag[]>([])
 const tagSearch = ref('')
+const MAX_TITLE_LENGTH = 60
+const MAX_DESCRIPTION_LENGTH = 200
 const MAX_TAGS = 5
 const tagsLoading = ref(false)
 
@@ -1030,6 +1129,21 @@ const validateForm = (): boolean => {
     isValid = false
   }
 
+  const titleValue = formData.title.trim()
+  if (!titleValue) {
+    errors.title = '请输入壁纸标题'
+    isValid = false
+  } else if (titleValue.length > MAX_TITLE_LENGTH) {
+    errors.title = `标题不能超过 ${MAX_TITLE_LENGTH} 个字符`
+    isValid = false
+  }
+
+  const descriptionValue = formData.description.trim()
+  if (descriptionValue.length > MAX_DESCRIPTION_LENGTH) {
+    errors.description = `描述不能超过 ${MAX_DESCRIPTION_LENGTH} 个字符`
+    isValid = false
+  }
+
   if (selectedTags.value.length === 0) {
     errors.tags = '请至少选择一个标签'
     isValid = false
@@ -1059,6 +1173,8 @@ const handleSubmit = async () => {
     const { response, requestId } = await wallpaperService.uploadWallpaper(
       {
         file: formData.imageFile,
+        title: formData.title.trim(),
+        description: formData.description.trim() || undefined,
         category: formData.category,
         tags: formData.tags,
       },
@@ -1106,6 +1222,8 @@ const cancelUpload = () => {
 // 清空输入表单（保留上传成功的信息）
 const clearInputForm = () => {
   formData.imageFile = null
+  formData.title = ''
+  formData.description = ''
   formData.category = 'general'
   formData.tags = []
 
@@ -1114,6 +1232,8 @@ const clearInputForm = () => {
   }
 
   errors.image = ''
+  errors.title = ''
+  errors.description = ''
   errors.tags = ''
   errors.category = ''
 
